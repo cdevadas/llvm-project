@@ -138,9 +138,9 @@ static void buildPrologSpill(const GCNSubtarget &ST, const SIRegisterInfo &TRI,
       PtrInfo, MachineMemOperand::MOStore, FrameInfo.getObjectSize(FI),
       FrameInfo.getObjectAlign(FI));
   LiveRegs.addReg(SpillReg);
-  TRI.buildSpillLoadStore(MBB, I, DL, Opc, FI, SpillReg, true,
-                          FuncInfo.getStackPtrOffsetReg(), 0, MMO, nullptr,
-                          &LiveRegs);
+  TRI.buildSpillLoadStore(
+      MBB, I, DL, Opc, FI, SpillReg, !MBB.isLiveIn(SpillReg),
+      FuncInfo.getStackPtrOffsetReg(), 0, MMO, nullptr, &LiveRegs);
   LiveRegs.removeReg(SpillReg);
 }
 

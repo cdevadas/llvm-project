@@ -459,10 +459,14 @@ public:
   };
 
 private:
-  // Track VGPR + wave index for each subregister of the SGPR spilled to
-  // frameindex key.
+  // To track VGPR + wave index for each subregister of the SGPR spilled to
+  // frameindex key during SILowerSGPRSpills pass.
   DenseMap<int, std::vector<SIRegisterInfo::SpilledReg>> SGPRToVGPRSpills;
+  // To track VGPR + wave index for spilling special SGPRs like Frame Pointer
+  // identified during PrologEpilogInserter.
+  DenseMap<int, std::vector<SIRegisterInfo::SpilledReg>> SGPRToVGPRCustomSpills;
   unsigned NumVGPRSpillLanes = 0;
+  unsigned NumVGPRCustomSpillLanes = 0;
   SmallVector<Register, 2> SpillVGPRs;
   using WWMSpillsMap = MapVector<Register, int>;
   // To track the registers used in instructions that can potentially modify the
@@ -545,6 +549,14 @@ public:
   const WWMSpillsMap &getWWMSpills() const { return WWMSpills; }
   const ReservedRegSet &getWWMReservedRegs() const { return WWMReservedRegs; }
 
+  ArrayRef<SIRegisterInfo::SpilledReg>
+  getSGPRToVGPRCustomSpills(int FrameIndex) const {
+    auto I = SGPRToVGPRCustomSpills.find(FrameIndex);
+    return (I == SGPRToVGPRCustomSpills.end())
+               ? ArrayRef<SIRegisterInfo::SpilledReg>()
+               : makeArrayRef(I->second);
+  }
+
   void allocateWWMSpill(MachineFunction &MF, Register VGPR, uint64_t Size = 4,
                         Align Alignment = Align(4));
 
@@ -568,9 +580,11 @@ public:
       I->second.IsDead = true;
   }
 
-  bool haveFreeLanesForSGPRSpill(const MachineFunction &MF,
-                                 unsigned NumLane) const;
-  bool allocateSGPRSpillToVGPR(MachineFunction &MF, int FI);
+  bool allocateVGPRForSGPRSpills(MachineFunction &MF, int FI,
+                                 unsigned LaneIndex);
+  bool allocateVGPRForCustomSGPRSpills(MachineFunction &MF, int FI,
+                                       unsigned LaneIndex);
+  bool allocateSGPRSpillToVGPR(MachineFunction &MF, int FI, bool IsPEI = false);
   bool allocateVGPRSpillToAGPR(MachineFunction &MF, int FI, bool isAGPRtoVGPR);
 
   /// If \p ResetSGPRSpillStackIDs is true, reset the stack ID from sgpr-spill

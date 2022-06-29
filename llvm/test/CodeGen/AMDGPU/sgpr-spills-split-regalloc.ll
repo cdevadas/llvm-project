@@ -7,13 +7,13 @@ define void @child_function() #0 {
 
 ; GCN-LABEL: {{^}}spill_sgpr_with_no_lower_vgpr_available:
 ; GCN:  buffer_store_dword v255, off, s[0:3], s32
-; GCN:  v_writelane_b32 v255, s33, 2
+; GCN:  s_mov_b32 [[TMP_SGPR:s[0-9]+]], s33
 ; GCN:  v_writelane_b32 v255, s30, 0
 ; GCN:  v_writelane_b32 v255, s31, 1
 ; GCN:  s_swappc_b64 s[30:31], s[4:5]
 ; GCN:  v_readlane_b32 s31, v255, 1
 ; GCN:  v_readlane_b32 s30, v255, 0
-; GCN:  v_readlane_b32 s33, v255, 2
+; GCN:  s_mov_b32 s33, [[TMP_SGPR]]
 ; GCN: ; NumVgprs: 256
 
 define void @spill_sgpr_with_no_lower_vgpr_available() #0 {
@@ -53,13 +53,13 @@ define void @spill_sgpr_with_no_lower_vgpr_available() #0 {
 
 ; GCN-LABEL: {{^}}spill_to_lowest_available_vgpr:
 ; GCN:  buffer_store_dword v254, off, s[0:3], s32
-; GCN:  v_writelane_b32 v254, s33, 2
+; GCN:  s_mov_b32 [[TMP_SGPR:s[0-9]+]], s33
 ; GCN:  v_writelane_b32 v254, s30, 0
 ; GCN:  v_writelane_b32 v254, s31, 1
 ; GCN:  s_swappc_b64 s[30:31], s[4:5]
 ; GCN:  v_readlane_b32 s31, v254, 1
 ; GCN:  v_readlane_b32 s30, v254, 0
-; GCN:  v_readlane_b32 s33, v254, 2
+; GCN:  s_mov_b32 s33, [[TMP_SGPR]]
 
 define void @spill_to_lowest_available_vgpr() #0 {
   %alloca = alloca i32, align 4, addrspace(5)

@@ -459,11 +459,11 @@ public:
   };
 
 private:
-  // To track VGPR + wave index for each subregister of the SGPR spilled to
-  // frameindex key during SILowerSGPRSpills pass.
+  // To track virtual VGPR + wave index for each subregister of the SGPR spilled
+  // to frameindex key during SILowerSGPRSpills pass.
   DenseMap<int, std::vector<SIRegisterInfo::SpilledReg>> SGPRToVGPRSpills;
-  // To track VGPR + wave index for spilling special SGPRs like Frame Pointer
-  // identified during PrologEpilogInserter.
+  // To track physical VGPR + wave index for spilling special SGPRs like Frame
+  // Pointer identified during PrologEpilogInserter.
   DenseMap<int, std::vector<SIRegisterInfo::SpilledReg>> SGPRToVGPRCustomSpills;
   unsigned NumVGPRSpillLanes = 0;
   unsigned NumVGPRCustomSpillLanes = 0;

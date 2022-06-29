@@ -26,9 +26,9 @@ define amdgpu_kernel void @test_kernel_call_external_void_func_void_clobber_s30_
 ; MUBUF:   buffer_store_dword
 ; FLATSCR: scratch_store_dword
 ; FLATSCR: scratch_store_dword
+; GCN: v_writelane_b32 v41, s33, 0
 ; GCN: v_writelane_b32 v40, s30, 0
 ; GCN: v_writelane_b32 v40, s31, 1
-; GCN: v_writelane_b32 v41, s33, 0
 ; GCN: v_writelane_b32 v40, s34, 2
 ; GCN: v_writelane_b32 v40, s35, 3
 

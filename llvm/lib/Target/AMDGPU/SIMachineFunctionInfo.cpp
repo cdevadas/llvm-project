@@ -284,33 +284,11 @@ bool SIMachineFunctionInfo::isCalleeSavedReg(const MCPhysReg *CSRegs,
 bool SIMachineFunctionInfo::allocateVGPRForSGPRSpills(MachineFunction &MF,
                                                       int FI,
                                                       unsigned LaneIndex) {
-  const GCNSubtarget &ST = MF.getSubtarget<GCNSubtarget>();
-  const SIRegisterInfo *TRI = ST.getRegisterInfo();
   MachineRegisterInfo &MRI = MF.getRegInfo();
   Register LaneVGPR;
   if (!LaneIndex) {
-    LaneVGPR = TRI->findUnusedRegister(MRI, &AMDGPU::VGPR_32RegClass, MF);
-    if (LaneVGPR == AMDGPU::NoRegister) {
-      // We have no VGPRs left for spilling SGPRs. Reset because we will not
-      // partially spill the SGPR to VGPRs.
-      SGPRToVGPRSpills.erase(FI);
-
-      // FIXME: We can run out of free registers with split allocation if
-      // IPRA is enabled and a called function already uses every VGPR.
-#if 0
-        DiagnosticInfoResourceLimit DiagOutOfRegs(MF.getFunction(),
-                                                  "VGPRs for SGPR spilling",
-                                                  0, DS_Error);
-        MF.getFunction().getContext().diagnose(DiagOutOfRegs);
-#endif
-      return false;
-    }
-
+    LaneVGPR = MRI.createVirtualRegister(&AMDGPU::VGPR_32RegClass);
     SpillVGPRs.push_back(LaneVGPR);
-    // Add this register as live-in to all blocks to avoid machine verifier
-    // complaining about use of an undefined physical register.
-    for (MachineBasicBlock &BB : MF)
-      BB.addLiveIn(LaneVGPR);
   } else {
     LaneVGPR = SpillVGPRs.back();
   }

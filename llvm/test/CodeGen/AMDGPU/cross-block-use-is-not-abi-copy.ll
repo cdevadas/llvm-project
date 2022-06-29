@@ -31,6 +31,7 @@ define float @call_split_type_used_outside_block_v2f32() #0 {
 ; GCN-NEXT:    buffer_store_dword v40, off, s[0:3], s32 ; 4-byte Folded Spill
 ; GCN-NEXT:    buffer_store_dword v41, off, s[0:3], s32 offset:4 ; 4-byte Folded Spill
 ; GCN-NEXT:    s_mov_b64 exec, s[16:17]
+; GCN-NEXT:    ; implicit-def: $vgpr40
 ; GCN-NEXT:    v_writelane_b32 v41, s33, 0
 ; GCN-NEXT:    s_mov_b32 s33, s32
 ; GCN-NEXT:    s_addk_i32 s32, 0x400
@@ -67,6 +68,7 @@ define float @call_split_type_used_outside_block_v3f32() #0 {
 ; GCN-NEXT:    buffer_store_dword v40, off, s[0:3], s32 ; 4-byte Folded Spill
 ; GCN-NEXT:    buffer_store_dword v41, off, s[0:3], s32 offset:4 ; 4-byte Folded Spill
 ; GCN-NEXT:    s_mov_b64 exec, s[16:17]
+; GCN-NEXT:    ; implicit-def: $vgpr40
 ; GCN-NEXT:    v_writelane_b32 v41, s33, 0
 ; GCN-NEXT:    s_mov_b32 s33, s32
 ; GCN-NEXT:    s_addk_i32 s32, 0x400
@@ -103,6 +105,7 @@ define half @call_split_type_used_outside_block_v4f16() #0 {
 ; GCN-NEXT:    buffer_store_dword v40, off, s[0:3], s32 ; 4-byte Folded Spill
 ; GCN-NEXT:    buffer_store_dword v41, off, s[0:3], s32 offset:4 ; 4-byte Folded Spill
 ; GCN-NEXT:    s_mov_b64 exec, s[16:17]
+; GCN-NEXT:    ; implicit-def: $vgpr40
 ; GCN-NEXT:    v_writelane_b32 v41, s33, 0
 ; GCN-NEXT:    s_mov_b32 s33, s32
 ; GCN-NEXT:    s_addk_i32 s32, 0x400
@@ -139,6 +142,7 @@ define { i32, half } @call_split_type_used_outside_block_struct() #0 {
 ; GCN-NEXT:    buffer_store_dword v40, off, s[0:3], s32 ; 4-byte Folded Spill
 ; GCN-NEXT:    buffer_store_dword v41, off, s[0:3], s32 offset:4 ; 4-byte Folded Spill
 ; GCN-NEXT:    s_mov_b64 exec, s[16:17]
+; GCN-NEXT:    ; implicit-def: $vgpr40
 ; GCN-NEXT:    v_writelane_b32 v41, s33, 0
 ; GCN-NEXT:    s_mov_b32 s33, s32
 ; GCN-NEXT:    s_addk_i32 s32, 0x400

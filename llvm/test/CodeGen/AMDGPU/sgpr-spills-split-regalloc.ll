@@ -5,16 +5,23 @@ define void @child_function() #0 {
   ret void
 }
 
+; SGPRs are now spilled into virtual VGPRs and regalloc takes care of finding
+; physical VGPRs and this test shouldn't take the high regsiter for spill lanes.
 ; GCN-LABEL: {{^}}spill_sgpr_with_no_lower_vgpr_available:
-; GCN:  buffer_store_dword v255, off, s[0:3], s32
+; GCN: buffer_store_dword [[LANE_VGPR:v[0-9]+]], off, s{{\[[0-9]+:[0-9]+\]}}, s{{[0-9]+}} offset:[[IDX_OFF:[0-9]+]] ; 4-byte Folded Spill
+; GCN-NOT:  buffer_store_dword v255, off, s[0:3], s32
 ; GCN:  s_mov_b32 [[TMP_SGPR:s[0-9]+]], s33
-; GCN:  v_writelane_b32 v255, s30, 0
-; GCN:  v_writelane_b32 v255, s31, 1
+; GCN:  v_writelane_b32 [[LANE_VGPR]], s30, 0
+; GCN:  v_writelane_b32 [[LANE_VGPR]], s31, 1
+; GCN-NOT:  v_writelane_b32 v255, s30, 0
+; GCN-NOT:  v_writelane_b32 v255, s31, 1
 ; GCN:  s_swappc_b64 s[30:31], s[4:5]
-; GCN:  v_readlane_b32 s31, v255, 1
-; GCN:  v_readlane_b32 s30, v255, 0
+; GCN:  v_readlane_b32 s31, [[LANE_VGPR]], 1
+; GCN:  v_readlane_b32 s30, [[LANE_VGPR]], 0
+; GCN-NOT:  v_readlane_b32 s31, v255, 1
+; GCN-NOT:  v_readlane_b32 s30, v255, 0
 ; GCN:  s_mov_b32 s33, [[TMP_SGPR]]
-; GCN: ; NumVgprs: 256
+; GCN: ; NumVgprs: 255
 
 define void @spill_sgpr_with_no_lower_vgpr_available() #0 {
   %alloca = alloca i32, align 4, addrspace(5)
@@ -52,13 +59,18 @@ define void @spill_sgpr_with_no_lower_vgpr_available() #0 {
 }
 
 ; GCN-LABEL: {{^}}spill_to_lowest_available_vgpr:
-; GCN:  buffer_store_dword v254, off, s[0:3], s32
+; GCN: buffer_store_dword [[LANE_VGPR:v[0-9]+]], off, s{{\[[0-9]+:[0-9]+\]}}, s{{[0-9]+}} offset:[[IDX_OFF:[0-9]+]] ; 4-byte Folded Spill
+; GCN-NOT:  buffer_store_dword v254, off, s[0:3], s32
 ; GCN:  s_mov_b32 [[TMP_SGPR:s[0-9]+]], s33
-; GCN:  v_writelane_b32 v254, s30, 0
-; GCN:  v_writelane_b32 v254, s31, 1
+; GCN:  v_writelane_b32 [[LANE_VGPR]], s30, 0
+; GCN:  v_writelane_b32 [[LANE_VGPR]], s31, 1
+; GCN-NOT:  v_writelane_b32 v254, s30, 0
+; GCN-NOT:  v_writelane_b32 v254, s31, 1
 ; GCN:  s_swappc_b64 s[30:31], s[4:5]
-; GCN:  v_readlane_b32 s31, v254, 1
-; GCN:  v_readlane_b32 s30, v254, 0
+; GCN:  v_readlane_b32 s31, [[LANE_VGPR]], 1
+; GCN:  v_readlane_b32 s30, [[LANE_VGPR]], 0
+; GCN-NOT:  v_readlane_b32 s31, v254, 1
+; GCN-NOT:  v_readlane_b32 s30, v254, 0
 ; GCN:  s_mov_b32 s33, [[TMP_SGPR]]
 
 define void @spill_to_lowest_available_vgpr() #0 {
@@ -97,10 +109,14 @@ define void @spill_to_lowest_available_vgpr() #0 {
 }
 
 ; GCN-LABEL: {{^}}spill_sgpr_with_sgpr_uses:
+; GCN: buffer_store_dword [[LANE_VGPR:v[0-9]+]], off, s{{\[[0-9]+:[0-9]+\]}}, s{{[0-9]+}} offset:[[IDX_OFF:[0-9]+]] ; 4-byte Folded Spill
 ; GCN-NOT:  buffer_store_dword v255, off, s[0:3], s32
+; GCN-NOT:  buffer_store_dword v254, off, s[0:3], s32
 ; GCN: ; def s4
-; GCN: v_writelane_b32 v254, s4, 0
-; GCN: v_readlane_b32 s4, v254, 0
+; GCN:  v_writelane_b32 [[LANE_VGPR]], s4, 0
+; GCN:  v_readlane_b32 s4, [[LANE_VGPR]], 0
+; GCN-NOT: v_writelane_b32 v254, s4, 0
+; GCN-NOT: v_readlane_b32 s4, v254, 0
 ; GCN: ; use s4
 
 define void @spill_sgpr_with_sgpr_uses() #0 {
@@ -192,22 +208,22 @@ define void @spill_sgpr_with_tail_call() #0 {
 
 ; GCN-LABEL: {{^}}spill_sgpr_no_free_vgpr:
 ; GCN: v_writelane_b32 [[A:v[0-9]+]], s34, 0
-; GCN: buffer_store_dword [[A]], off, s[0:3], s32
-; GCN: v_writelane_b32 [[B:v[0-9]+]], s35, 0
-; GCN: buffer_store_dword [[B]], off, s[0:3], s32
-; GCN: v_writelane_b32 [[C:v[0-9]+]], s36, 0
-; GCN: buffer_store_dword [[C]], off, s[0:3], s32
-; GCN: v_writelane_b32 [[D:v[0-9]+]], s37, 0
-; GCN: buffer_store_dword [[D]], off, s[0:3], s32
+; GCN: v_writelane_b32 [[A]], s35, 1
+; GCN: v_writelane_b32 [[A]], s36, 2
+; GCN: v_writelane_b32 [[A]], s37, 3
+; GCN: buffer_store_dword [[A]], off, s{{\[[0-9]+:[0-9]+\]}}, s{{[0-9]+}} offset:[[IDX_OFF:[0-9]+]] ; 4-byte Folded Spill
+; GCN-NOT: v_writelane_b32 v{{[0-9]+}}, s35, 0
+; GCN-NOT: v_writelane_b32 v{{[0-9]+}}, s36, 0
+; GCN-NOT: v_writelane_b32 v{{[0-9]+}}, s37, 0
 ; GCN: #ASMEND
-; GCN: buffer_load_dword [[E:v[0-9]+]]
-; GCN: v_readlane_b32 s37, [[E]], 0
-; GCN: buffer_load_dword [[F:v[0-9]+]]
-; GCN: v_readlane_b32 s36, [[F]], 0
-; GCN: buffer_load_dword [[G:v[0-9]+]]
-; GCN: v_readlane_b32 s35, [[G]], 0
-; GCN: buffer_load_dword [[H:v[0-9]+]]
-; GCN: v_readlane_b32 s34, [[H]], 0
+; GCN-NOT: v_readlane_b32 s37, v{{[0-9]+}}, 0
+; GCN-NOT: v_readlane_b32 s36, v{{[0-9]+}}, 0
+; GCN-NOT: v_readlane_b32 s35, v{{[0-9]+}}, 0
+; GCN: buffer_load_dword [[B:v[0-9]+]], off, s{{\[[0-9]+:[0-9]+\]}}, s{{[0-9]+}}  offset:[[IDX_OFF]] ; 4-byte Folded Reload
+; GCN: v_readlane_b32 s37, [[B]], 3
+; GCN: v_readlane_b32 s36, [[B]], 2
+; GCN: v_readlane_b32 s35, [[B]], 1
+; GCN: v_readlane_b32 s34, [[B]], 0
 
 define void @spill_sgpr_no_free_vgpr(<4 x i32> addrspace(1)* %out, <4 x i32> addrspace(1)* %in) #0 {
   %a = load <4 x i32>, <4 x i32> addrspace(1)* %in
@@ -282,15 +298,15 @@ define internal void @child_function_ipra() #0 {
 }
 
 ; GCN-LABEL: {{^}}spill_sgpr_no_free_vgpr_ipra:
-; GCN: v_writelane_b32 v0, s30, 0
-; GCN: buffer_store_dword v0, off
-; GCN: v_writelane_b32 v0, s31, 0
-; GCN: buffer_store_dword v0, off
+; GCN: v_writelane_b32 [[A:v[0-9]+]], s30, 0
+; GCN: v_writelane_b32 [[A]], s31, 1
+; GCN: buffer_store_dword [[A]], off, s{{\[[0-9]+:[0-9]+\]}}, s{{[0-9]+}} offset:[[IDX_OFF:[0-9]+]] ; 4-byte Folded Spill
+; GCN-NOT: v_writelane_b32 v{{[0-9]+}}, s31, 0
 ; GCN: swappc
-; GCN: buffer_load_dword v0, off
-; GCN: v_readlane_b32 s31, v0, 0
-; GCN: buffer_load_dword v0, off
-; GCN: v_readlane_b32 s30, v0, 0
+; GCN-NOT: v_readlane_b32 s31, v{{[0-9]+}}, 0
+; GCN: buffer_load_dword [[B:v[0-9]+]], off, s{{\[[0-9]+:[0-9]+\]}}, s{{[0-9]+}}  offset:[[IDX_OFF]] ; 4-byte Folded Reload
+; GCN: v_readlane_b32 s31, [[B]], 1
+; GCN: v_readlane_b32 s30, [[B]], 0
 define void @spill_sgpr_no_free_vgpr_ipra() #0 {
   call void @child_function_ipra()
   ret void

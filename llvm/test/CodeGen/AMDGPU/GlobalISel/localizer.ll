@@ -238,8 +238,9 @@ define void @sink_null_insert_pt(i32 addrspace(4)* %arg0) {
 ; GFX9-NEXT:    v_mov_b32_e32 v1, 0
 ; GFX9-NEXT:    global_load_dword v0, v[0:1], off glc
 ; GFX9-NEXT:    s_waitcnt vmcnt(0)
-; GFX9-NEXT:    v_writelane_b32 v40, s30, 0
+; GFX9-NEXT:    ; implicit-def: $vgpr40
 ; GFX9-NEXT:    v_writelane_b32 v41, s33, 0
+; GFX9-NEXT:    v_writelane_b32 v40, s30, 0
 ; GFX9-NEXT:    s_mov_b32 s33, s32
 ; GFX9-NEXT:    s_addk_i32 s32, 0x400
 ; GFX9-NEXT:    v_writelane_b32 v40, s31, 1

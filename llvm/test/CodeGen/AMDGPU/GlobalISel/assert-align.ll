@@ -11,6 +11,7 @@ define i32 addrspace(1)* @call_assert_align() {
 ; CHECK-NEXT:    buffer_store_dword v40, off, s[0:3], s32 ; 4-byte Folded Spill
 ; CHECK-NEXT:    buffer_store_dword v41, off, s[0:3], s32 offset:4 ; 4-byte Folded Spill
 ; CHECK-NEXT:    s_mov_b64 exec, s[16:17]
+; CHECK-NEXT:    ; implicit-def: $vgpr40
 ; CHECK-NEXT:    v_writelane_b32 v41, s33, 0
 ; CHECK-NEXT:    s_mov_b32 s33, s32
 ; CHECK-NEXT:    s_addk_i32 s32, 0x400

@@ -119,6 +119,8 @@ public:
   /// registers.
   bool isAllocatable() const { return MC->isAllocatable(); }
 
+  bool isHidden() const { return MC->isHidden(); }
+
   /// Return true if the specified TargetRegisterClass
   /// is a proper sub-class of this TargetRegisterClass.
   bool hasSubClass(const TargetRegisterClass *RC) const {

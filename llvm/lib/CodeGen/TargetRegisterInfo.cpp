@@ -200,7 +200,7 @@ TargetRegisterInfo::getAllocatableClass(const TargetRegisterClass *RC) const {
   for (BitMaskClassIterator It(RC->getSubClassMask(), *this); It.isValid();
        ++It) {
     const TargetRegisterClass *SubRC = getRegClass(It.getID());
-    if (SubRC->isAllocatable())
+    if (SubRC->isAllocatable() && !SubRC->isHidden())
       return SubRC;
   }
   return nullptr;
@@ -219,7 +219,8 @@ TargetRegisterInfo::getMinimalPhysRegClass(MCRegister reg, MVT VT) const {
   const TargetRegisterClass* BestRC = nullptr;
   for (const TargetRegisterClass* RC : regclasses()) {
     if ((VT == MVT::Other || isTypeLegalForClass(*RC, VT)) &&
-        RC->contains(reg) && (!BestRC || BestRC->hasSubClass(RC)))
+        RC->contains(reg) && !RC->isHidden() &&
+        (!BestRC || BestRC->hasSubClass(RC)))
       BestRC = RC;
   }
 
@@ -237,7 +238,7 @@ TargetRegisterInfo::getMinimalPhysRegClassLLT(MCRegister reg, LLT Ty) const {
   const TargetRegisterClass *BestRC = nullptr;
   for (const TargetRegisterClass *RC : regclasses()) {
     if ((!Ty.isValid() || isTypeLegalForClass(*RC, Ty)) && RC->contains(reg) &&
-        (!BestRC || BestRC->hasSubClass(RC)))
+        !RC->isHidden() && (!BestRC || BestRC->hasSubClass(RC)))
       BestRC = RC;
   }
 
@@ -264,7 +265,7 @@ BitVector TargetRegisterInfo::getAllocatableSet(const MachineFunction &MF,
       getAllocatableSetForRC(MF, SubClass, Allocatable);
   } else {
     for (const TargetRegisterClass *C : regclasses())
-      if (C->isAllocatable())
+      if (C->isAllocatable() && !C->isHidden())
         getAllocatableSetForRC(MF, C, Allocatable);
   }
 
@@ -280,9 +281,14 @@ static inline
 const TargetRegisterClass *firstCommonClass(const uint32_t *A,
                                             const uint32_t *B,
                                             const TargetRegisterInfo *TRI) {
-  for (unsigned I = 0, E = TRI->getNumRegClasses(); I < E; I += 32)
-    if (unsigned Common = *A++ & *B++)
-      return TRI->getRegClass(I + llvm::countr_zero(Common));
+  for (unsigned I = 0, E = TRI->getNumRegClasses(); I < E; I += 32) {
+    if (unsigned Common = *A++ & *B++) {
+      const TargetRegisterClass *RC =
+          TRI->getRegClass(I + llvm::countr_zero(Common));
+      if (!RC->isHidden())
+        return RC;
+    }
+  }
   return nullptr;
 }
 

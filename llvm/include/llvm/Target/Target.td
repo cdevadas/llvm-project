@@ -334,6 +334,11 @@ class RegisterClass<string namespace, list<ValueType> regTypes, int alignment,
   // Target-specific flags. This becomes the TSFlags field in TargetRegisterClass.
   bits<8> TSFlags = 0;
 
+  // If enabled, hide the register class from various regclass querries. This field
+  // will allow targets to define dynamic reglcasses that can be custom enabled during
+  // codegen for specific virtual registers of the target.
+  bit Hide = false;
+
   // If set then consider this register class to be the base class for registers in
   // its MemberList.  The base class for registers present in multiple base register
   // classes will be resolved in the order defined by this value, with lower values

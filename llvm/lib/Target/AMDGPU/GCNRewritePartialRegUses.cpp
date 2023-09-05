@@ -209,7 +209,8 @@ const BitVector &GCNRewritePartialRegUses::getAllocatableAndAlignedRegClassMask(
     BV.resize(TRI->getNumRegClasses());
     for (unsigned ClassID = 0; ClassID < TRI->getNumRegClasses(); ++ClassID) {
       auto *RC = TRI->getRegClass(ClassID);
-      if (RC->isAllocatable() && TRI->isRegClassAligned(RC, AlignNumBits))
+      if (RC->isAllocatable() && !RC->isHidden() &&
+          TRI->isRegClassAligned(RC, AlignNumBits))
         BV.set(ClassID);
     }
   }

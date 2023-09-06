@@ -94,6 +94,14 @@ private:
   /// all registers that were disabled are removed from the list.
   SmallVector<MCPhysReg, 16> UpdatedCSRs;
 
+  /// The flag is true when dynamic register classes are enabled and
+  /// false otherwise.
+  bool IsDynRegClassesEnabled = false;
+
+  /// The isHidden status of regclasses. Targets can alter this vector
+  /// dynamically to custom enable classes during codegen.
+  BitVector DynRegClassIsHiddenInfo;
+
   /// RegAllocHints - This vector records register allocation hints for
   /// virtual registers. For each virtual register, it keeps a pair of hint
   /// type and hints vector making up the allocation hints. Only the first
@@ -266,6 +274,23 @@ public:
   /// Sets the updated Callee Saved Registers list.
   /// Notice that it will override ant previously disabled/saved CSRs.
   void setCalleeSavedRegs(ArrayRef<MCPhysReg> CSRs);
+
+  /// Initialize the DynRegClassIsHiddenInfo. It sets the bit position as
+  /// exactly as the tablegened values. Targets can later make the required
+  /// classes visible.
+  void initializeDynRegClassHiddenInfo();
+
+  /// Reset Dynamic register classes. This can be done at the point when
+  /// a target no longer needed them.
+  void resetDynRegClasses();
+
+  /// Change the visibility of the regclass with given RCID.
+  void changeRegClassVisibility(unsigned RCID);
+
+  /// This function checks if \p RC is hidden or not. If dynamic
+  /// allocatable classes are initialized, the function uses the Bitvector to
+  /// test it, otherwise the tablegened field is looked at.
+  bool isHidden(const TargetRegisterClass *RC) const;
 
   // Strictly for use by MachineInstr.cpp.
   void addRegOperandToUseList(MachineOperand *MO);

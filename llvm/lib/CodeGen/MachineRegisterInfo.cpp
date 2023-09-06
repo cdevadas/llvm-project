@@ -641,6 +641,36 @@ void MachineRegisterInfo::setCalleeSavedRegs(ArrayRef<MCPhysReg> CSRs) {
   IsUpdatedCSRsInitialized = true;
 }
 
+void MachineRegisterInfo::initializeDynRegClassHiddenInfo() {
+  const TargetRegisterInfo *TRI = getTargetRegisterInfo();
+
+  DynRegClassIsHiddenInfo.resize(TRI->getNumRegClasses());
+  for (const TargetRegisterClass *RC : TRI->regclasses()) {
+    if (RC->isHidden())
+      DynRegClassIsHiddenInfo.set(RC->getID());
+  }
+
+  IsDynRegClassesEnabled = true;
+}
+
+void MachineRegisterInfo::resetDynRegClasses() {
+  DynRegClassIsHiddenInfo.reset();
+  IsDynRegClassesEnabled = false;
+}
+
+void MachineRegisterInfo::changeRegClassVisibility(unsigned RCID) {
+  assert(IsDynRegClassesEnabled && "Dynamic regclass is not enabled.");
+
+  DynRegClassIsHiddenInfo.flip(RCID);
+}
+
+bool MachineRegisterInfo::isHidden(const TargetRegisterClass *RC) const {
+  if (IsDynRegClassesEnabled)
+    return DynRegClassIsHiddenInfo.test(RC->getID());
+
+  return RC->isHidden();
+}
+
 bool MachineRegisterInfo::isReservedRegUnit(unsigned Unit) const {
   const TargetRegisterInfo *TRI = getTargetRegisterInfo();
   for (MCRegUnitRootIterator Root(Unit, TRI); Root.isValid(); ++Root) {

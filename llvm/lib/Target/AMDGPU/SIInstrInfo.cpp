@@ -1679,7 +1679,7 @@ static unsigned getVectorRegSpillSaveOpcode(Register Reg,
   bool IsVectorSuperClass = TRI.isVectorSuperClass(RC);
 
   // Choose the right opcode if spilling a WWM register.
-  if (MFI.checkFlag(Reg, AMDGPU::VirtRegFlag::WWM_REG))
+  if (RC == &AMDGPU::WWM_VGPR_32RegClass)
     return getWWMRegSpillSaveOpcode(Size, IsVectorSuperClass);
 
   if (IsVectorSuperClass)
@@ -1904,7 +1904,7 @@ getVectorRegSpillRestoreOpcode(Register Reg, const TargetRegisterClass *RC,
   bool IsVectorSuperClass = TRI.isVectorSuperClass(RC);
 
   // Choose the right opcode if restoring a WWM register.
-  if (MFI.checkFlag(Reg, AMDGPU::VirtRegFlag::WWM_REG))
+  if (RC == &AMDGPU::WWM_VGPR_32RegClass)
     return getWWMRegSpillRestoreOpcode(Size, IsVectorSuperClass);
 
   if (IsVectorSuperClass)
@@ -8263,9 +8263,8 @@ SIInstrInfo::getSerializableMachineMemOperandTargetFlags() const {
 
 unsigned SIInstrInfo::getLiveRangeSplitOpcode(Register SrcReg,
                                               const MachineFunction &MF) const {
-  const SIMachineFunctionInfo *MFI = MF.getInfo<SIMachineFunctionInfo>();
   assert(SrcReg.isVirtual());
-  if (MFI->checkFlag(SrcReg, AMDGPU::VirtRegFlag::WWM_REG))
+  if (MF.getRegInfo().getRegClass(SrcReg) == &AMDGPU::WWM_VGPR_32RegClass)
     return AMDGPU::WWM_COPY;
 
   return AMDGPU::COPY;

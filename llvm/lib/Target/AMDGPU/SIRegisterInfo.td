@@ -638,6 +638,17 @@ def VGPR_32_Lo128 : SIRegisterClass<"AMDGPU", !listconcat(Reg32Types.types, Reg1
   let Size = 32;
   let Weight = 1;
 }
+
+// Identical to VGPR_32 and can only be used for wwm-registers. They are not allocatable by default.
+// It is the dynamic regclass that can be turned allocatable during codegen as required.
+def WWM_VGPR_32 : SIRegisterClass<"AMDGPU", !listconcat(Reg32Types.types, Reg16Types.types), 32,
+                            (add (sequence "VGPR%u", 0, 255))> {
+  let AllocationPriority = 0;
+  let Size = 32;
+  let Weight = 1;
+  let BaseClassOrder = 32;
+  let Hide = 1;
+}
 } // End HasVGPR = 1
 
 // VGPR 64-bit registers

@@ -506,7 +506,7 @@ bool CoalescerPair::setRegisters(const MachineInstr *MI) {
       NewRC = TRI.getMatchingSuperRegClass(SrcRC, DstRC, SrcSub);
     } else {
       // This is a straight copy without sub-registers.
-      NewRC = TRI.getCommonSubClass(DstRC, SrcRC);
+      NewRC = TRI.getCommonSubClass(DstRC, SrcRC, MRI);
     }
 
     // The combined constraint may be impossible to satisfy.
@@ -1366,7 +1366,7 @@ bool RegisterCoalescer::reMaterializeTrivialDef(const CoalescerPair &CP,
              && "Shouldn't have SrcIdx+DstIdx at this point");
       const TargetRegisterClass *DstRC = MRI->getRegClass(DstReg);
       const TargetRegisterClass *CommonRC =
-        TRI->getCommonSubClass(DefRC, DstRC);
+          TRI->getCommonSubClass(DefRC, DstRC, *MRI);
       if (CommonRC != nullptr) {
         NewRC = CommonRC;
 
@@ -1457,7 +1457,7 @@ bool RegisterCoalescer::reMaterializeTrivialDef(const CoalescerPair &CP,
       if (NewIdx)
         NewRC = TRI->getMatchingSuperRegClass(NewRC, DefRC, NewIdx);
       else
-        NewRC = TRI->getCommonSubClass(NewRC, DefRC);
+        NewRC = TRI->getCommonSubClass(NewRC, DefRC, *MRI);
       assert(NewRC && "subreg chosen for remat incompatible with instruction");
     }
     // Remap subranges to new lanemask and change register class.

@@ -184,6 +184,7 @@ bool SystemZELFFrameLowering::assignCalleeSavedSpillSlots(
   unsigned LowGPR = 0;
   unsigned HighGPR = SystemZ::R15D;
   int StartSPOffset = SystemZMC::ELFCallFrameSize;
+  const MachineRegisterInfo &MRI = MF.getRegInfo();
   for (auto &CS : CSI) {
     Register Reg = CS.getReg();
     int Offset = getRegSpillOffset(MF, Reg);
@@ -226,7 +227,7 @@ bool SystemZELFFrameLowering::assignCalleeSavedSpillSlots(
     if (CS.getFrameIdx() != INT32_MAX)
       continue;
     Register Reg = CS.getReg();
-    const TargetRegisterClass *RC = TRI->getMinimalPhysRegClass(Reg);
+    const TargetRegisterClass *RC = TRI->getMinimalPhysRegClass(Reg, MRI);
     unsigned Size = TRI->getSpillSize(*RC);
     CurrOffset -= Size;
     assert(CurrOffset % 8 == 0 &&
@@ -999,6 +1000,7 @@ bool SystemZXPLINKFrameLowering::assignCalleeSavedSpillSlots(
   int LowSpillOffset = INT32_MAX;
   Register HighGPR = 0;
   int HighOffset = -1;
+  const MachineRegisterInfo &MRI = MF.getRegInfo();
 
   for (auto &CS : CSI) {
     Register Reg = CS.getReg();
@@ -1028,7 +1030,7 @@ bool SystemZXPLINKFrameLowering::assignCalleeSavedSpillSlots(
       }
     } else {
       Register Reg = CS.getReg();
-      const TargetRegisterClass *RC = TRI->getMinimalPhysRegClass(Reg);
+      const TargetRegisterClass *RC = TRI->getMinimalPhysRegClass(Reg, MRI);
       Align Alignment = TRI->getSpillAlign(*RC);
       unsigned Size = TRI->getSpillSize(*RC);
       Alignment = std::min(Alignment, getStackAlign());

@@ -2899,10 +2899,9 @@ bool SIRegisterInfo::opCanUseInlineConstant(unsigned OpType) const {
 }
 
 bool SIRegisterInfo::shouldRewriteCopySrc(
-  const TargetRegisterClass *DefRC,
-  unsigned DefSubReg,
-  const TargetRegisterClass *SrcRC,
-  unsigned SrcSubReg) const {
+    const TargetRegisterClass *DefRC, unsigned DefSubReg,
+    const TargetRegisterClass *SrcRC, unsigned SrcSubReg,
+    const MachineRegisterInfo &MRI) const {
   // We want to prefer the smallest register class possible, so we don't want to
   // stop and rewrite on anything that looks like a subregister
   // extract. Operations mostly don't care about the super register class, so we
@@ -2919,7 +2918,7 @@ bool SIRegisterInfo::shouldRewriteCopySrc(
   //  => %3 = COPY %0
 
   // Plain copy.
-  return getCommonSubClass(DefRC, SrcRC) != nullptr;
+  return getCommonSubClass(DefRC, SrcRC, MRI) != nullptr;
 }
 
 bool SIRegisterInfo::opCanUseLiteralConstant(unsigned OpType) const {
@@ -3095,7 +3094,7 @@ SIRegisterInfo::getConstrainedRegClassForOperand(const MachineOperand &MO,
     return getRegClassForTypeOnBank(MRI.getType(MO.getReg()), *RB);
 
   if (const auto *RC = RCOrRB.dyn_cast<const TargetRegisterClass *>())
-    return getAllocatableClass(RC);
+    return getAllocatableClass(RC, MRI);
 
   return nullptr;
 }

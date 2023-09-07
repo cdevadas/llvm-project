@@ -263,7 +263,8 @@ public:
   bool shouldRewriteCopySrc(const TargetRegisterClass *DefRC,
                             unsigned DefSubReg,
                             const TargetRegisterClass *SrcRC,
-                            unsigned SrcSubReg) const override;
+                            unsigned SrcSubReg,
+                            const MachineRegisterInfo &MRI) const override;
 
   /// \returns True if operands defined with this operand type can accept
   /// a literal constant (i.e. any 32-bit immediate).

@@ -868,14 +868,15 @@ AArch64LoadStoreOpt::mergePairedInsns(MachineBasicBlock::iterator I,
   if (MergeForward && RenameReg) {
     MCRegister RegToRename = getLdStRegOp(*I).getReg();
     DefinedInBB.addReg(*RenameReg);
+    const MachineRegisterInfo &MRI = I->getParent()->getParent()->getRegInfo();
 
     // Return the sub/super register for RenameReg, matching the size of
     // OriginalReg.
-    auto GetMatchingSubReg = [this,
-                              RenameReg](MCPhysReg OriginalReg) -> MCPhysReg {
+    auto GetMatchingSubReg = [this, RenameReg,
+                              &MRI](MCPhysReg OriginalReg) -> MCPhysReg {
       for (MCPhysReg SubOrSuper : TRI->sub_and_superregs_inclusive(*RenameReg))
-        if (TRI->getMinimalPhysRegClass(OriginalReg) ==
-            TRI->getMinimalPhysRegClass(SubOrSuper))
+        if (TRI->getMinimalPhysRegClass(OriginalReg, MRI) ==
+            TRI->getMinimalPhysRegClass(SubOrSuper, MRI))
           return SubOrSuper;
       llvm_unreachable("Should have found matching sub or super register!");
     };
@@ -1371,9 +1372,11 @@ canRenameUpToDef(MachineInstr &FirstMI, LiveRegUnits &UsedInBetween,
 
   // Check if we can find an unused register which we can use to rename
   // the register used by the first load/store.
-  auto *RegClass = TRI->getMinimalPhysRegClass(getLdStRegOp(FirstMI).getReg());
   MachineFunction &MF = *FirstMI.getParent()->getParent();
-  if (!RegClass || !MF.getRegInfo().tracksLiveness())
+  const MachineRegisterInfo &MRI = MF.getRegInfo();
+  auto *RegClass =
+      TRI->getMinimalPhysRegClass(getLdStRegOp(FirstMI).getReg(), MRI);
+  if (!RegClass || !MRI.tracksLiveness())
     return false;
 
   auto RegToRename = getLdStRegOp(FirstMI).getReg();
@@ -1388,9 +1391,9 @@ canRenameUpToDef(MachineInstr &FirstMI, LiveRegUnits &UsedInBetween,
     LLVM_DEBUG(dbgs() << "  Operand not killed at " << FirstMI << "\n");
     return false;
   }
-  auto canRenameMOP = [TRI](const MachineOperand &MOP) {
+  auto canRenameMOP = [TRI, &MRI](const MachineOperand &MOP) {
     if (MOP.isReg()) {
-      auto *RegClass = TRI->getMinimalPhysRegClass(MOP.getReg());
+      auto *RegClass = TRI->getMinimalPhysRegClass(MOP.getReg(), MRI);
       // Renaming registers with multiple disjunct sub-registers (e.g. the
       // result of a LD3) means that all sub-registers are renamed, potentially
       // impacting other instructions we did not check. Bail out.
@@ -1455,7 +1458,7 @@ canRenameUpToDef(MachineInstr &FirstMI, LiveRegUnits &UsedInBetween,
                      << "  Cannot rename " << MOP << " in " << MI << "\n");
           return false;
         }
-        RequiredClasses.insert(TRI->getMinimalPhysRegClass(MOP.getReg()));
+        RequiredClasses.insert(TRI->getMinimalPhysRegClass(MOP.getReg(), MRI));
       }
       return true;
     } else {
@@ -1469,7 +1472,7 @@ canRenameUpToDef(MachineInstr &FirstMI, LiveRegUnits &UsedInBetween,
                      << "  Cannot rename " << MOP << " in " << MI << "\n");
           return false;
         }
-        RequiredClasses.insert(TRI->getMinimalPhysRegClass(MOP.getReg()));
+        RequiredClasses.insert(TRI->getMinimalPhysRegClass(MOP.getReg(), MRI));
       }
     }
     return true;
@@ -1509,16 +1512,19 @@ static std::optional<MCPhysReg> tryToFindRegisterToRename(
 
   // Check if PR or one of its sub- or super-registers can be used for all
   // required register classes.
-  auto CanBeUsedForAllClasses = [&RequiredClasses, TRI](MCPhysReg PR) {
-    return all_of(RequiredClasses, [PR, TRI](const TargetRegisterClass *C) {
+  auto CanBeUsedForAllClasses = [&RequiredClasses, TRI,
+                                 &RegInfo](MCPhysReg PR) {
+    return all_of(RequiredClasses, [PR, TRI,
+                                    &RegInfo](const TargetRegisterClass *C) {
       return any_of(TRI->sub_and_superregs_inclusive(PR),
-                    [C, TRI](MCPhysReg SubOrSuper) {
-                      return C == TRI->getMinimalPhysRegClass(SubOrSuper);
+                    [C, TRI, &RegInfo](MCPhysReg SubOrSuper) {
+                      return C ==
+                             TRI->getMinimalPhysRegClass(SubOrSuper, RegInfo);
                     });
     });
   };
 
-  auto *RegClass = TRI->getMinimalPhysRegClass(Reg);
+  auto *RegClass = TRI->getMinimalPhysRegClass(Reg, RegInfo);
   for (const MCPhysReg &PR : *RegClass) {
     if (DefinedInBB.available(PR) && UsedInBetween.available(PR) &&
         !RegInfo.isReserved(PR) && !AnySubOrSuperRegCalleePreserved(PR) &&

@@ -1587,7 +1587,7 @@ public:
   const TargetRegisterClass *getRegClassConstraintEffectForVReg(
       Register Reg, const TargetRegisterClass *CurRC,
       const TargetInstrInfo *TII, const TargetRegisterInfo *TRI,
-      bool ExploreBundle = false) const;
+      const MachineRegisterInfo &MRI, bool ExploreBundle = false) const;
 
   /// Applies the constraints (def/use) implied by the \p OpIdx operand
   /// to the given \p CurRC.
@@ -1601,7 +1601,8 @@ public:
   const TargetRegisterClass *
   getRegClassConstraintEffect(unsigned OpIdx, const TargetRegisterClass *CurRC,
                               const TargetInstrInfo *TII,
-                              const TargetRegisterInfo *TRI) const;
+                              const TargetRegisterInfo *TRI,
+                              const MachineRegisterInfo &MRI) const;
 
   /// Add a tie between the register operands at DefIdx and UseIdx.
   /// The tie will cause the register allocator to ensure that the two
@@ -2002,7 +2003,8 @@ private:
   /// If the related operand does not constrained Reg, this returns CurRC.
   const TargetRegisterClass *getRegClassConstraintEffectForVRegImpl(
       unsigned OpIdx, Register Reg, const TargetRegisterClass *CurRC,
-      const TargetInstrInfo *TII, const TargetRegisterInfo *TRI) const;
+      const TargetInstrInfo *TII, const TargetRegisterInfo *TRI,
+      const MachineRegisterInfo &MRI) const;
 
   /// Stores extra instruction information inline or allocates as ExtraInfo
   /// based on the number of pointers.

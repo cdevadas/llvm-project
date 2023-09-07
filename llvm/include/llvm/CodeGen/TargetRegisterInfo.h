@@ -333,20 +333,23 @@ public:
   /// Returns the Register Class of a physical register of the given type,
   /// picking the most sub register class of the right type that contains this
   /// physreg.
-  const TargetRegisterClass *getMinimalPhysRegClass(MCRegister Reg,
-                                                    MVT VT = MVT::Other) const;
+  const TargetRegisterClass *
+  getMinimalPhysRegClass(MCRegister Reg, const MachineRegisterInfo &MRI,
+                         MVT VT = MVT::Other) const;
 
   /// Returns the Register Class of a physical register of the given type,
   /// picking the most sub register class of the right type that contains this
   /// physreg. If there is no register class compatible with the given type,
   /// returns nullptr.
-  const TargetRegisterClass *getMinimalPhysRegClassLLT(MCRegister Reg,
-                                                       LLT Ty = LLT()) const;
+  const TargetRegisterClass *
+  getMinimalPhysRegClassLLT(MCRegister Reg, const MachineRegisterInfo &MRI,
+                            LLT Ty = LLT()) const;
 
   /// Return the maximal subclass of the given register class that is
   /// allocatable or NULL.
   const TargetRegisterClass *
-    getAllocatableClass(const TargetRegisterClass *RC) const;
+  getAllocatableClass(const TargetRegisterClass *RC,
+                      const MachineRegisterInfo &MRI) const;
 
   /// Returns a bitset indexed by register number indicating if a register is
   /// allocatable or not. If a register class is specified, returns the subset
@@ -628,7 +631,8 @@ public:
   virtual bool shouldRewriteCopySrc(const TargetRegisterClass *DefRC,
                                     unsigned DefSubReg,
                                     const TargetRegisterClass *SrcRC,
-                                    unsigned SrcSubReg) const;
+                                    unsigned SrcSubReg,
+                                    const MachineRegisterInfo &MRI) const;
 
   /// Returns the largest legal sub-class of RC that
   /// supports the sub-register index Idx.
@@ -798,8 +802,8 @@ public:
   /// Find the largest common subclass of A and B.
   /// Return NULL if there is no common subclass.
   const TargetRegisterClass *
-  getCommonSubClass(const TargetRegisterClass *A,
-                    const TargetRegisterClass *B) const;
+  getCommonSubClass(const TargetRegisterClass *A, const TargetRegisterClass *B,
+                    const MachineRegisterInfo &MRI) const;
 
   /// Returns a TargetRegisterClass used for pointer values.
   /// If a target supports multiple different pointer register classes,

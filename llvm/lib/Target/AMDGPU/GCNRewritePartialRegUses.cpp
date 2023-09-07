@@ -209,7 +209,7 @@ const BitVector &GCNRewritePartialRegUses::getAllocatableAndAlignedRegClassMask(
     BV.resize(TRI->getNumRegClasses());
     for (unsigned ClassID = 0; ClassID < TRI->getNumRegClasses(); ++ClassID) {
       auto *RC = TRI->getRegClass(ClassID);
-      if (RC->isAllocatable() && !RC->isHidden() &&
+      if (RC->isAllocatable() && !MRI->isHidden(RC) &&
           TRI->isRegClassAligned(RC, AlignNumBits))
         BV.set(ClassID);
     }
@@ -443,7 +443,8 @@ bool GCNRewritePartialRegUses::rewriteReg(Register Reg) const {
     const auto [I, Inserted] = SubRegs.try_emplace(MO.getSubReg(), OpDescRC);
     if (!Inserted && OpDescRC) {
       SubRegInfo &SRI = I->second;
-      SRI.RC = SRI.RC ? TRI->getCommonSubClass(SRI.RC, OpDescRC) : OpDescRC;
+      SRI.RC =
+          SRI.RC ? TRI->getCommonSubClass(SRI.RC, OpDescRC, *MRI) : OpDescRC;
       if (!SRI.RC) {
         LLVM_DEBUG(dbgs() << "  Couldn't find common target regclass\n");
         return false;

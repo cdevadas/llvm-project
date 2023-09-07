@@ -1935,7 +1935,7 @@ void MachineVerifier::visitMachineInstrBefore(const MachineInstr *MI) {
     unsigned DstSize = 0;
     if (SrcReg.isPhysical() && DstTy.isValid()) {
       const TargetRegisterClass *SrcRC =
-          TRI->getMinimalPhysRegClassLLT(SrcReg, DstTy);
+          TRI->getMinimalPhysRegClassLLT(SrcReg, *MRI, DstTy);
       if (SrcRC)
         SrcSize = TRI->getRegSizeInBits(*SrcRC);
     }
@@ -1945,7 +1945,7 @@ void MachineVerifier::visitMachineInstrBefore(const MachineInstr *MI) {
 
     if (DstReg.isPhysical() && SrcTy.isValid()) {
       const TargetRegisterClass *DstRC =
-          TRI->getMinimalPhysRegClassLLT(DstReg, SrcTy);
+          TRI->getMinimalPhysRegClassLLT(DstReg, *MRI, SrcTy);
       if (DstRC)
         DstSize = TRI->getRegSizeInBits(*DstRC);
     }

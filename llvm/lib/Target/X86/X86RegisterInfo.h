@@ -73,7 +73,8 @@ public:
   bool shouldRewriteCopySrc(const TargetRegisterClass *DefRC,
                             unsigned DefSubReg,
                             const TargetRegisterClass *SrcRC,
-                            unsigned SrcSubReg) const override;
+                            unsigned SrcSubReg,
+                            const MachineRegisterInfo &MRI) const override;
 
   /// getPointerRegClass - Returns a TargetRegisterClass used for pointer
   /// values.

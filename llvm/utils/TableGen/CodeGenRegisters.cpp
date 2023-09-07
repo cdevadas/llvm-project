@@ -1094,7 +1094,8 @@ CodeGenRegisterClass::getMatchingSubClassWithSubRegs(
   for (auto *SuperRegRC : SuperRegRCs) {
     for (const auto &SuperRegClassPair : SuperRegClasses) {
       const BitVector &SuperRegClassBV = SuperRegClassPair.second;
-      if (SuperRegClassBV[SuperRegRC->EnumValue]) {
+      if (SuperRegClassBV[SuperRegRC->EnumValue] &&
+          !SuperRegClassPair.first->Hide) {
         SubRegRC = SuperRegClassPair.first;
         ChosenSuperRegClass = SuperRegRC;
 

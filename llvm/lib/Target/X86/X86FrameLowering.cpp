@@ -2745,6 +2745,8 @@ bool X86FrameLowering::assignCalleeSavedSpillSlots(
     }
   }
 
+  const MachineRegisterInfo &MRI = MF.getRegInfo();
+
   // Assign slots for GPRs. It increases frame size.
   for (CalleeSavedInfo &I : llvm::reverse(CSI)) {
     Register Reg = I.getReg();
@@ -2783,7 +2785,7 @@ bool X86FrameLowering::assignCalleeSavedSpillSlots(
     if (X86::VK16RegClass.contains(Reg))
       VT = STI.hasBWI() ? MVT::v64i1 : MVT::v16i1;
 
-    const TargetRegisterClass *RC = TRI->getMinimalPhysRegClass(Reg, VT);
+    const TargetRegisterClass *RC = TRI->getMinimalPhysRegClass(Reg, MRI, VT);
     unsigned Size = TRI->getSpillSize(*RC);
     Align Alignment = TRI->getSpillAlign(*RC);
     // ensure alignment
@@ -2819,13 +2821,13 @@ bool X86FrameLowering::spillCalleeSavedRegisters(
   // Push GPRs. It increases frame size.
   const MachineFunction &MF = *MBB.getParent();
   unsigned Opc = STI.is64Bit() ? X86::PUSH64r : X86::PUSH32r;
+  const MachineRegisterInfo &MRI = MF.getRegInfo();
   for (const CalleeSavedInfo &I : llvm::reverse(CSI)) {
     Register Reg = I.getReg();
 
     if (!X86::GR64RegClass.contains(Reg) && !X86::GR32RegClass.contains(Reg))
       continue;
 
-    const MachineRegisterInfo &MRI = MF.getRegInfo();
     bool isLiveIn = MRI.isLiveIn(Reg);
     if (!isLiveIn)
       MBB.addLiveIn(Reg);
@@ -2874,7 +2876,7 @@ bool X86FrameLowering::spillCalleeSavedRegisters(
 
     // Add the callee-saved register as live-in. It's killed at the spill.
     MBB.addLiveIn(Reg);
-    const TargetRegisterClass *RC = TRI->getMinimalPhysRegClass(Reg, VT);
+    const TargetRegisterClass *RC = TRI->getMinimalPhysRegClass(Reg, MRI, VT);
 
     TII.storeRegToStackSlot(MBB, MI, Reg, true, I.getFrameIdx(), RC, TRI,
                             Register());
@@ -2939,6 +2941,7 @@ bool X86FrameLowering::restoreCalleeSavedRegisters(
   }
 
   DebugLoc DL = MBB.findDebugLoc(MI);
+  const MachineRegisterInfo &MRI = MBB.getParent()->getRegInfo();
 
   // Reload XMMs from stack frame.
   for (const CalleeSavedInfo &I : CSI) {
@@ -2952,7 +2955,7 @@ bool X86FrameLowering::restoreCalleeSavedRegisters(
     if (X86::VK16RegClass.contains(Reg))
       VT = STI.hasBWI() ? MVT::v64i1 : MVT::v16i1;
 
-    const TargetRegisterClass *RC = TRI->getMinimalPhysRegClass(Reg, VT);
+    const TargetRegisterClass *RC = TRI->getMinimalPhysRegClass(Reg, MRI, VT);
     TII.loadRegFromStackSlot(MBB, MI, Reg, I.getFrameIdx(), RC, TRI,
                              Register());
   }

@@ -55,7 +55,8 @@ MachineRegisterInfo::MachineRegisterInfo(MachineFunction *MF)
 ///
 void
 MachineRegisterInfo::setRegClass(Register Reg, const TargetRegisterClass *RC) {
-  assert(RC && RC->isAllocatable() && "Invalid RC for virtual register");
+  assert(RC && RC->isAllocatable() && !isHidden(RC) &&
+         "Invalid RC for virtual register");
   VRegInfo[Reg].first = RC;
 }
 
@@ -71,7 +72,7 @@ constrainRegClass(MachineRegisterInfo &MRI, Register Reg,
   if (OldRC == RC)
     return RC;
   const TargetRegisterClass *NewRC =
-      MRI.getTargetRegisterInfo()->getCommonSubClass(OldRC, RC);
+      MRI.getTargetRegisterInfo()->getCommonSubClass(OldRC, RC, MRI);
   if (!NewRC || NewRC == OldRC)
     return NewRC;
   if (NewRC->getNumRegs() < MinNumRegs)
@@ -134,7 +135,7 @@ MachineRegisterInfo::recomputeRegClass(Register Reg) {
     MachineInstr *MI = MO.getParent();
     unsigned OpNo = &MO - &MI->getOperand(0);
     NewRC = MI->getRegClassConstraintEffect(OpNo, NewRC, TII,
-                                            getTargetRegisterInfo());
+                                            getTargetRegisterInfo(), *this);
     if (!NewRC || NewRC == OldRC)
       return false;
   }
@@ -159,6 +160,8 @@ MachineRegisterInfo::createVirtualRegister(const TargetRegisterClass *RegClass,
   assert(RegClass && "Cannot create register without RegClass!");
   assert(RegClass->isAllocatable() &&
          "Virtual register RegClass must be allocatable.");
+  assert(!isHidden(RegClass) &&
+         "Virtual register RegClass must not be hidden.");
 
   // New virtual register number.
   Register Reg = createIncompleteVirtualRegister(Name);

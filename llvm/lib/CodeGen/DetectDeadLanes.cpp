@@ -102,7 +102,7 @@ static bool isCrossCopy(const MachineRegisterInfo &MRI,
     return !TRI.getMatchingSuperRegClass(SrcRC, DstRC, SrcSubIdx);
   if (DstSubIdx)
     return !TRI.getMatchingSuperRegClass(DstRC, SrcRC, DstSubIdx);
-  return !TRI.getCommonSubClass(SrcRC, DstRC);
+  return !TRI.getCommonSubClass(SrcRC, DstRC, MRI);
 }
 
 void DeadLaneDetector::addUsedLanesOnOperand(const MachineOperand &MO,

@@ -2645,7 +2645,8 @@ void DwarfDebug::emitDebugLocValue(const AsmPrinter &AP, const DIBasicType *BT,
     DwarfExpr.beginEntryValueExpression(ExprCursor);
 
     const TargetRegisterInfo &TRI = *AP.MF->getSubtarget().getRegisterInfo();
-    if (!DwarfExpr.addMachineRegExpression(TRI, ExprCursor, Location.getReg()))
+    if (!DwarfExpr.addMachineRegExpression(TRI, AP.MF->getRegInfo(), ExprCursor,
+                                           Location.getReg()))
       return;
     return DwarfExpr.addExpression(std::move(ExprCursor));
   }
@@ -2666,7 +2667,8 @@ void DwarfDebug::emitDebugLocValue(const AsmPrinter &AP, const DIBasicType *BT,
         DwarfExpr.setMemoryLocationKind();
 
       const TargetRegisterInfo &TRI = *AP.MF->getSubtarget().getRegisterInfo();
-      if (!DwarfExpr.addMachineRegExpression(TRI, Cursor, Location.getReg()))
+      if (!DwarfExpr.addMachineRegExpression(TRI, AP.MF->getRegInfo(), Cursor,
+                                             Location.getReg()))
         return false;
     } else if (Entry.isTargetIndexLocation()) {
       TargetIndexLocation Loc = Entry.getTargetIndexLocation();

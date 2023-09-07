@@ -262,7 +262,8 @@ StackMaps::parseOperand(MachineInstr::const_mop_iterator MOI,
 
     assert(MOI->getReg().isPhysical() &&
            "Virtreg operands should have been rewritten before now.");
-    const TargetRegisterClass *RC = TRI->getMinimalPhysRegClass(MOI->getReg());
+    const TargetRegisterClass *RC =
+        TRI->getMinimalPhysRegClass(MOI->getReg(), AP.MF->getRegInfo());
     assert(!MOI->getSubReg() && "Physical subreg still around.");
 
     unsigned Offset = 0;
@@ -358,7 +359,8 @@ void StackMaps::print(raw_ostream &OS) {
 StackMaps::LiveOutReg
 StackMaps::createLiveOutReg(unsigned Reg, const TargetRegisterInfo *TRI) const {
   unsigned DwarfRegNum = getDwarfRegNum(Reg, TRI);
-  unsigned Size = TRI->getSpillSize(*TRI->getMinimalPhysRegClass(Reg));
+  unsigned Size =
+      TRI->getSpillSize(*TRI->getMinimalPhysRegClass(Reg, AP.MF->getRegInfo()));
   return LiveOutReg(Reg, DwarfRegNum, Size);
 }
 

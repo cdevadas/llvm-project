@@ -674,6 +674,18 @@ bool MachineRegisterInfo::isHidden(const TargetRegisterClass *RC) const {
   return RC->isHidden();
 }
 
+void MachineRegisterInfo::updateReservedRegsForRC(
+    std::vector<BitVector> &Reserved) {
+  unsigned Size = Reserved.size();
+  for (unsigned I = 0; I < Size; ++I)
+    ReservedRegsForRC.push_back(std::move(Reserved[I]));
+}
+
+const BitVector &
+MachineRegisterInfo::getReservedRegsForRC(const TargetRegisterClass &RC) const {
+  return ReservedRegsForRC[RC.getID()];
+}
+
 bool MachineRegisterInfo::isReservedRegUnit(unsigned Unit) const {
   const TargetRegisterInfo *TRI = getTargetRegisterInfo();
   for (MCRegUnitRootIterator Root(Unit, TRI); Root.isValid(); ++Root) {

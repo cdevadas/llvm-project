@@ -102,6 +102,12 @@ private:
   /// dynamically to custom enable classes during codegen.
   BitVector DynRegClassIsHiddenInfo;
 
+  /// To have more restrictions on the registers for each register class.
+  /// For some targets, two distinct register classes can have the same set of
+  /// registers, but the allocatable list can vary. This vector of BitVector
+  /// helps targets to achieve that.
+  std::vector<BitVector> ReservedRegsForRC;
+
   /// RegAllocHints - This vector records register allocation hints for
   /// virtual registers. For each virtual register, it keeps a pair of hint
   /// type and hints vector making up the allocation hints. Only the first
@@ -291,6 +297,11 @@ public:
   /// allocatable classes are initialized, the function uses the Bitvector to
   /// test it, otherwise the tablegened field is looked at.
   bool isHidden(const TargetRegisterClass *RC) const;
+
+  void updateReservedRegsForRC(std::vector<BitVector> &Reserved);
+
+  const BitVector &getReservedRegsForRC(const TargetRegisterClass &RC) const;
+  bool hasReservedRegsForRC() const { return ReservedRegsForRC.size(); }
 
   // Strictly for use by MachineInstr.cpp.
   void addRegOperandToUseList(MachineOperand *MO);

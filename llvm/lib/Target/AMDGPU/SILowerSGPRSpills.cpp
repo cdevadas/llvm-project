@@ -427,6 +427,40 @@ bool SILowerSGPRSpills::runOnMachineFunction(MachineFunction &MF) {
       }
     }
 
+    // Reserve an optimal number of VGPRs for WWM allocation. The complement
+    // list will be available for allocating regular virtual registers of VGPR
+    // class.
+    unsigned NumWwmVGPRs = FuncInfo->getSGPRSpillVGPRs().size();
+    if (NumWwmVGPRs) {
+      unsigned MaxNumVGPRs = ST.getMaxNumVGPRs(MF);
+      unsigned TotalNumVGPRs = AMDGPU::VGPR_32RegClass.getNumRegs();
+      if (ST.hasGFX90AInsts())
+        MaxNumVGPRs /= 2;
+      else
+        MaxNumVGPRs = std::min(TotalNumVGPRs, MaxNumVGPRs);
+
+      unsigned NumRegs = TRI->getNumRegs();
+      BitVector RegularVGPRReserved(NumRegs, false);
+      BitVector AllReserved = TRI->getReservedRegs(MF);
+      unsigned NumAllocatableWWMRegs = std::min(3u, NumWwmVGPRs);
+      for (unsigned i = 0; i < MaxNumVGPRs && NumAllocatableWWMRegs; ++i) {
+        Register Reg = AMDGPU::VGPR_32RegClass.getRegister(i);
+        if (AllReserved.test(Reg))
+          continue;
+
+        TRI->markSuperRegs(RegularVGPRReserved, Reg);
+        NumAllocatableWWMRegs--;
+      }
+      BitVector WwmVGPRReserved(RegularVGPRReserved);
+      WwmVGPRReserved.flip().clearBitsNotInMask(TRI->getAllVGPRRegMask());
+      std::vector<BitVector> ReserverdForRCs(TRI->getNumRegClasses(),
+                                             BitVector(NumRegs, false));
+      std::fill(ReserverdForRCs.begin(), ReserverdForRCs.end(),
+                RegularVGPRReserved);
+      ReserverdForRCs[AMDGPU::WWM_VGPR_32RegClass.getID()] = WwmVGPRReserved;
+      MRI.updateReservedRegsForRC(ReserverdForRCs);
+    }
+
     for (MachineBasicBlock &MBB : MF) {
       // FIXME: The dead frame indices are replaced with a null register from
       // the debug value instructions. We should instead, update it with the

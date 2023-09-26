@@ -143,9 +143,15 @@ void RegisterClassInfo::compute(const TargetRegisterClass *RC) const {
   // FIXME: Once targets reserve registers instead of removing them from the
   // allocation order, we can simply use begin/end here.
   ArrayRef<MCPhysReg> RawOrder = RC->getRawAllocationOrder(*MF);
+  const MachineRegisterInfo &MRI = MF->getRegInfo();
+  BitVector ReservedForRC(TRI->getNumRegs(), false);
+  ReservedForRC |= Reserved;
+  if (MRI.hasReservedRegsForRC())
+    ReservedForRC |= MRI.getReservedRegsForRC(*RC);
+
   for (unsigned PhysReg : RawOrder) {
     // Remove reserved registers from the allocation order.
-    if (Reserved.test(PhysReg))
+    if (ReservedForRC.test(PhysReg))
       continue;
     uint8_t Cost = RegCosts[PhysReg];
     MinCost = std::min(MinCost, Cost);

@@ -20,6 +20,7 @@
 #include "MCTargetDesc/AMDGPUMCTargetDesc.h"
 #include "SIMachineFunctionInfo.h"
 #include "llvm/CodeGen/LiveIntervals.h"
+#include "llvm/CodeGen/LiveRegMatrix.h"
 #include "llvm/CodeGen/MachineDominators.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/RegisterScavenging.h"
@@ -38,6 +39,7 @@ private:
   const SIRegisterInfo *TRI = nullptr;
   const SIInstrInfo *TII = nullptr;
   LiveIntervals *LIS = nullptr;
+  LiveRegMatrix *Matrix = nullptr;
   SlotIndexes *Indexes = nullptr;
   MachineDominatorTree *MDT = nullptr;
 
@@ -58,10 +60,19 @@ public:
       int FI, MachineBasicBlock *MBB, MachineBasicBlock::iterator InsertPt,
       DenseMap<Register, MachineBasicBlock::iterator> &LaneVGPRDomInstr);
 
+  MCRegister reserveRegForLI(MachineFunction &MF, LiveInterval &LI,
+                             BitVector &Reserved);
+  // MCRegister reserveRegForLI(MachineFunction &MF, BitVector &Reserved);
   bool runOnMachineFunction(MachineFunction &MF) override;
 
   void getAnalysisUsage(AnalysisUsage &AU) const override {
     AU.addRequired<MachineDominatorTree>();
+    // AU.addPreserved<MachineDominatorTree>();
+    AU.addRequired<LiveIntervals>();
+    // AU.addPreserved<LiveIntervals>();
+    // AU.addPreserved<SlotIndexes>();
+    AU.addRequired<LiveRegMatrix>();
+    // AU.setPreservesCFG();
     AU.setPreservesAll();
     MachineFunctionPass::getAnalysisUsage(AU);
   }
@@ -81,7 +92,7 @@ char SILowerSGPRSpills::ID = 0;
 INITIALIZE_PASS_BEGIN(SILowerSGPRSpills, DEBUG_TYPE,
                       "SI lower SGPR spill instructions", false, false)
 INITIALIZE_PASS_DEPENDENCY(LiveIntervals)
-INITIALIZE_PASS_DEPENDENCY(VirtRegMap)
+// INITIALIZE_PASS_DEPENDENCY(LiveRegMatrix)
 INITIALIZE_PASS_DEPENDENCY(MachineDominatorTree)
 INITIALIZE_PASS_END(SILowerSGPRSpills, DEBUG_TYPE,
                     "SI lower SGPR spill instructions", false, false)
@@ -315,14 +326,32 @@ void SILowerSGPRSpills::updateLaneVGPRDomInstr(
   }
 }
 
+MCRegister SILowerSGPRSpills::reserveRegForLI(MachineFunction &MF,
+                                              LiveInterval &LI,
+                                              BitVector &Reserved) {
+  // MCRegister SILowerSGPRSpills::reserveRegForLI(MachineFunction &MF,
+  // BitVector &Reserved) {
+  const MachineRegisterInfo &MRI = MF.getRegInfo();
+  for (auto &Reg : AMDGPU::VGPR_32RegClass.getRegisters()) {
+    if (Reserved.test(Reg))
+      continue;
+
+    if (!MRI.isPhysRegUsed(Reg) && !Matrix->checkInterference(LI, Reg))
+      return Reg;
+  }
+
+  return MCRegister();
+}
+
 bool SILowerSGPRSpills::runOnMachineFunction(MachineFunction &MF) {
   const GCNSubtarget &ST = MF.getSubtarget<GCNSubtarget>();
   TII = ST.getInstrInfo();
   TRI = &TII->getRegisterInfo();
 
-  LIS = getAnalysisIfAvailable<LiveIntervals>();
+  LIS = &getAnalysis<LiveIntervals>();
   Indexes = getAnalysisIfAvailable<SlotIndexes>();
   MDT = &getAnalysis<MachineDominatorTree>();
+  Matrix = &getAnalysis<LiveRegMatrix>();
 
   assert(SaveBlocks.empty() && RestoreBlocks.empty());
 
@@ -413,6 +442,7 @@ bool SILowerSGPRSpills::runOnMachineFunction(MachineFunction &MF) {
       }
     }
 
+    SmallVector<LiveInterval *, 2> WWMLIs;
     for (auto Reg : FuncInfo->getSGPRSpillVGPRs()) {
       auto InsertPt = LaneVGPRDomInstr[Reg];
       // Insert the IMPLICIT_DEF at the identified points.
@@ -424,6 +454,8 @@ bool SILowerSGPRSpills::runOnMachineFunction(MachineFunction &MF) {
       if (LIS) {
         LIS->InsertMachineInstrInMaps(*MIB);
         LIS->createAndComputeVirtRegInterval(Reg);
+        LiveInterval &LI = LIS->getInterval(Reg);
+        WWMLIs.push_back(&LI);
       }
     }
 
@@ -439,18 +471,24 @@ bool SILowerSGPRSpills::runOnMachineFunction(MachineFunction &MF) {
       else
         MaxNumVGPRs = std::min(TotalNumVGPRs, MaxNumVGPRs);
 
+      // Sort the WWM LiveIntervals and try to reserve registers for the largest
+      // intervals. The heuristics limits the maximum number of registers
+      // reserved for WWM allocation.
+      llvm::sort(WWMLIs, [](const LiveInterval *L, const LiveInterval *R) {
+        return L->getSize() < R->getSize();
+      });
+
       unsigned NumRegs = TRI->getNumRegs();
       BitVector RegularVGPRReserved(NumRegs, false);
       BitVector AllReserved = TRI->getReservedRegs(MF);
       unsigned NumAllocatableWWMRegs = std::min(3u, NumWwmVGPRs);
-      for (unsigned i = 0; i < MaxNumVGPRs && NumAllocatableWWMRegs; ++i) {
-        Register Reg = AMDGPU::VGPR_32RegClass.getRegister(i);
-        if (AllReserved.test(Reg))
-          continue;
-
-        TRI->markSuperRegs(RegularVGPRReserved, Reg);
-        NumAllocatableWWMRegs--;
+      for (unsigned I = 0; I < NumAllocatableWWMRegs; ++I) {
+        if (MCRegister Reg = reserveRegForLI(MF, *WWMLIs[I], AllReserved))
+          //  if (MCRegister Reg = reserveRegForLI(MF, AllReserved))
+          TRI->markSuperRegs(RegularVGPRReserved, Reg);
+        // Error out if can't find a free reg?
       }
+
       BitVector WwmVGPRReserved(RegularVGPRReserved);
       WwmVGPRReserved.flip().clearBitsNotInMask(TRI->getAllVGPRRegMask());
       std::vector<BitVector> ReserverdForRCs(TRI->getNumRegClasses(),

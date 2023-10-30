@@ -450,7 +450,7 @@ define <4 x i32> @fptoui_4f64_to_2i32(<2 x double> %a) {
 ;
 ; AVX1-LABEL: fptoui_4f64_to_2i32:
 ; AVX1:       # %bb.0:
-; AVX1-NEXT:    vmovapd %xmm0, %xmm0
+; AVX1-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
 ; AVX1-NEXT:    vcvttpd2dq %ymm0, %xmm1
 ; AVX1-NEXT:    vpsrad $31, %xmm1, %xmm2
 ; AVX1-NEXT:    vsubpd {{\.?LCPI[0-9]+_[0-9]+}}(%rip), %ymm0, %ymm0
@@ -462,7 +462,7 @@ define <4 x i32> @fptoui_4f64_to_2i32(<2 x double> %a) {
 ;
 ; AVX2-LABEL: fptoui_4f64_to_2i32:
 ; AVX2:       # %bb.0:
-; AVX2-NEXT:    vmovapd %xmm0, %xmm0
+; AVX2-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
 ; AVX2-NEXT:    vbroadcastsd {{.*#+}} ymm1 = [2.147483648E+9,2.147483648E+9,2.147483648E+9,2.147483648E+9]
 ; AVX2-NEXT:    vsubpd %ymm1, %ymm0, %ymm1
 ; AVX2-NEXT:    vcvttpd2dq %ymm1, %xmm1
@@ -475,7 +475,7 @@ define <4 x i32> @fptoui_4f64_to_2i32(<2 x double> %a) {
 ;
 ; AVX512F-LABEL: fptoui_4f64_to_2i32:
 ; AVX512F:       # %bb.0:
-; AVX512F-NEXT:    vmovaps %xmm0, %xmm0
+; AVX512F-NEXT:    # kill: def $xmm0 killed $xmm0 def $zmm0
 ; AVX512F-NEXT:    vcvttpd2udq %zmm0, %ymm0
 ; AVX512F-NEXT:    # kill: def $xmm0 killed $xmm0 killed $ymm0
 ; AVX512F-NEXT:    vzeroupper
@@ -483,14 +483,14 @@ define <4 x i32> @fptoui_4f64_to_2i32(<2 x double> %a) {
 ;
 ; AVX512VL-LABEL: fptoui_4f64_to_2i32:
 ; AVX512VL:       # %bb.0:
-; AVX512VL-NEXT:    vmovaps %xmm0, %xmm0
+; AVX512VL-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
 ; AVX512VL-NEXT:    vcvttpd2udq %ymm0, %xmm0
 ; AVX512VL-NEXT:    vzeroupper
 ; AVX512VL-NEXT:    retq
 ;
 ; AVX512DQ-LABEL: fptoui_4f64_to_2i32:
 ; AVX512DQ:       # %bb.0:
-; AVX512DQ-NEXT:    vmovaps %xmm0, %xmm0
+; AVX512DQ-NEXT:    # kill: def $xmm0 killed $xmm0 def $zmm0
 ; AVX512DQ-NEXT:    vcvttpd2udq %zmm0, %ymm0
 ; AVX512DQ-NEXT:    # kill: def $xmm0 killed $xmm0 killed $ymm0
 ; AVX512DQ-NEXT:    vzeroupper
@@ -498,7 +498,7 @@ define <4 x i32> @fptoui_4f64_to_2i32(<2 x double> %a) {
 ;
 ; AVX512VLDQ-LABEL: fptoui_4f64_to_2i32:
 ; AVX512VLDQ:       # %bb.0:
-; AVX512VLDQ-NEXT:    vmovaps %xmm0, %xmm0
+; AVX512VLDQ-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
 ; AVX512VLDQ-NEXT:    vcvttpd2udq %ymm0, %xmm0
 ; AVX512VLDQ-NEXT:    vzeroupper
 ; AVX512VLDQ-NEXT:    retq

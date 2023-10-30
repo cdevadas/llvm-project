@@ -1625,7 +1625,7 @@ define <16 x float> @test_mm512_maskz_unpacklo_ps(i16 %a0, <16 x float> %a1, <16
 define <8 x double> @test_mm512_zextpd128_pd512(<2 x double> %a0) nounwind {
 ; CHECK-LABEL: test_mm512_zextpd128_pd512:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    vmovaps %xmm0, %xmm0
+; CHECK-NEXT:    # kill: def $xmm0 killed $xmm0 def $zmm0
 ; CHECK-NEXT:    ret{{[l|q]}}
   %res = shufflevector <2 x double> %a0, <2 x double> zeroinitializer, <8 x i32> <i32 0, i32 1, i32 2, i32 3, i32 2, i32 3, i32 2, i32 3>
   ret <8 x double> %res
@@ -1634,7 +1634,7 @@ define <8 x double> @test_mm512_zextpd128_pd512(<2 x double> %a0) nounwind {
 define <8 x double> @test_mm512_zextpd256_pd512(<4 x double> %a0) nounwind {
 ; CHECK-LABEL: test_mm512_zextpd256_pd512:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    vmovaps %ymm0, %ymm0
+; CHECK-NEXT:    # kill: def $ymm0 killed $ymm0 def $zmm0
 ; CHECK-NEXT:    ret{{[l|q]}}
   %res = shufflevector <4 x double> %a0, <4 x double> zeroinitializer, <8 x i32> <i32 0, i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i32 7>
   ret <8 x double> %res
@@ -1643,7 +1643,7 @@ define <8 x double> @test_mm512_zextpd256_pd512(<4 x double> %a0) nounwind {
 define <16 x float> @test_mm512_zextps128_ps512(<4 x float> %a0) nounwind {
 ; CHECK-LABEL: test_mm512_zextps128_ps512:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    vmovaps %xmm0, %xmm0
+; CHECK-NEXT:    # kill: def $xmm0 killed $xmm0 def $zmm0
 ; CHECK-NEXT:    ret{{[l|q]}}
   %res = shufflevector <4 x float> %a0, <4 x float> zeroinitializer, <16 x i32> <i32 0, i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i32 7, i32 4, i32 5, i32 6, i32 7, i32 4, i32 5, i32 6, i32 7>
   ret <16 x float> %res
@@ -1652,7 +1652,7 @@ define <16 x float> @test_mm512_zextps128_ps512(<4 x float> %a0) nounwind {
 define <16 x float> @test_mm512_zextps256_ps512(<8 x float> %a0) nounwind {
 ; CHECK-LABEL: test_mm512_zextps256_ps512:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    vmovaps %ymm0, %ymm0
+; CHECK-NEXT:    # kill: def $ymm0 killed $ymm0 def $zmm0
 ; CHECK-NEXT:    ret{{[l|q]}}
   %res = shufflevector <8 x float> %a0, <8 x float> zeroinitializer, <16 x i32> <i32 0, i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i32 7, i32 8, i32 9, i32 10, i32 11, i32 12, i32 13, i32 14, i32 15>
   ret <16 x float> %res

@@ -2615,7 +2615,7 @@ SIInstrInfo::expandMovDPP64(MachineInstr &MI) const {
 
 std::optional<DestSourcePair>
 SIInstrInfo::isCopyInstrImpl(const MachineInstr &MI) const {
-  if (MI.getOpcode() == AMDGPU::WWM_COPY)
+  if (MI.getOpcode() == AMDGPU::LR_SPLIT_COPY)
     return DestSourcePair{MI.getOperand(0), MI.getOperand(1)};
 
   return std::nullopt;
@@ -3287,7 +3287,7 @@ bool SIInstrInfo::isFoldableCopy(const MachineInstr &MI) {
   case AMDGPU::S_MOV_B64:
   case AMDGPU::S_MOV_B64_IMM_PSEUDO:
   case AMDGPU::COPY:
-  case AMDGPU::WWM_COPY:
+  case AMDGPU::LR_SPLIT_COPY:
   case AMDGPU::V_ACCVGPR_WRITE_B32_e64:
   case AMDGPU::V_ACCVGPR_READ_B32_e64:
   case AMDGPU::V_ACCVGPR_MOV_B32:
@@ -8430,12 +8430,8 @@ SIInstrInfo::getSerializableMachineMemOperandTargetFlags() const {
 
 unsigned SIInstrInfo::getLiveRangeSplitOpcode(Register SrcReg,
                                               const MachineFunction &MF) const {
-  const SIMachineFunctionInfo *MFI = MF.getInfo<SIMachineFunctionInfo>();
   assert(SrcReg.isVirtual());
-  if (MFI->checkFlag(SrcReg, AMDGPU::VirtRegFlag::WWM_REG))
-    return AMDGPU::WWM_COPY;
-
-  return AMDGPU::COPY;
+  return AMDGPU::LR_SPLIT_COPY;
 }
 
 bool SIInstrInfo::isBasicBlockPrologue(const MachineInstr &MI) const {

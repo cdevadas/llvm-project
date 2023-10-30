@@ -173,7 +173,7 @@ def STRICT_WQM : PseudoInstSI <(outs unknown:$vdst), (ins unknown:$src0)>;
 
 } // End let hasSideEffects = 0, mayLoad = 0, mayStore = 0, Uses = [EXEC]
 
-def WWM_COPY : SPseudoInstSI <
+def LR_SPLIT_COPY : SPseudoInstSI <
   (outs unknown:$dst), (ins unknown:$src)> {
   let hasSideEffects = 0;
   let isAsCheapAsAMove = 1;

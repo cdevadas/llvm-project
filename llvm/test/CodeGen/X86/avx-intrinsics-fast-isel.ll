@@ -3054,7 +3054,7 @@ declare void @llvm.x86.avx.vzeroupper() nounwind readnone
 define <4 x double> @test_mm256_zextpd128_pd256(<2 x double> %a0) nounwind {
 ; CHECK-LABEL: test_mm256_zextpd128_pd256:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    vmovaps %xmm0, %xmm0
+; CHECK-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
 ; CHECK-NEXT:    ret{{[l|q]}}
   %res = shufflevector <2 x double> %a0, <2 x double> zeroinitializer, <4 x i32> <i32 0, i32 1, i32 2, i32 3>
   ret <4 x double> %res
@@ -3063,7 +3063,7 @@ define <4 x double> @test_mm256_zextpd128_pd256(<2 x double> %a0) nounwind {
 define <8 x float> @test_mm256_zextps128_ps256(<4 x float> %a0) nounwind {
 ; CHECK-LABEL: test_mm256_zextps128_ps256:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    vmovaps %xmm0, %xmm0
+; CHECK-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
 ; CHECK-NEXT:    ret{{[l|q]}}
   %res = shufflevector <4 x float> %a0, <4 x float> zeroinitializer, <8 x i32> <i32 0, i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i32 7>
   ret <8 x float> %res

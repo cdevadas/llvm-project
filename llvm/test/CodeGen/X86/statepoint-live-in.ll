@@ -172,12 +172,12 @@ define void @test7(i32 %a, i32 %b, i32 %c, i32 %d, i32 %e, i32 %f, i32 %g, i32 %
 ; CHECK-NEXT:    movq %rax, {{[-0-9]+}}(%r{{[sb]}}p) ## 8-byte Spill
 ; CHECK-NEXT:    movl {{[0-9]+}}(%rsp), %eax
 ; CHECK-NEXT:    movq %rax, {{[-0-9]+}}(%r{{[sb]}}p) ## 8-byte Spill
-; CHECK-NEXT:    movl %edi, %edi
-; CHECK-NEXT:    movl %esi, %esi
-; CHECK-NEXT:    movl %edx, %edx
-; CHECK-NEXT:    movl %ecx, %ecx
-; CHECK-NEXT:    movl %r8d, %r8d
-; CHECK-NEXT:    movl %r9d, %r9d
+; CHECK-NEXT:    ## kill: def $edi killed $edi def $rdi
+; CHECK-NEXT:    ## kill: def $esi killed $esi def $rsi
+; CHECK-NEXT:    ## kill: def $edx killed $edx def $rdx
+; CHECK-NEXT:    ## kill: def $ecx killed $ecx def $rcx
+; CHECK-NEXT:    ## kill: def $r8d killed $r8d def $r8
+; CHECK-NEXT:    ## kill: def $r9d killed $r9d def $r9
 ; CHECK-NEXT:    movl {{[0-9]+}}(%rsp), %eax
 ; CHECK-NEXT:    movq %rax, {{[-0-9]+}}(%r{{[sb]}}p) ## 8-byte Spill
 ; CHECK-NEXT:    movl {{[0-9]+}}(%rsp), %eax

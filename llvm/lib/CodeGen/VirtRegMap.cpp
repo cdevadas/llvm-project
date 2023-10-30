@@ -405,7 +405,7 @@ bool VirtRegRewriter::readsUndefSubreg(const MachineOperand &MO) const {
 }
 
 void VirtRegRewriter::handleIdentityCopy(MachineInstr &MI) {
-  if (!MI.isIdentityCopy())
+  if (!TII->isIdentityCopyInstr(MI))
     return;
   LLVM_DEBUG(dbgs() << "Identity copy: " << MI);
   ++NumIdCopies;
@@ -442,7 +442,7 @@ void VirtRegRewriter::handleIdentityCopy(MachineInstr &MI) {
 /// after processing the last in the bundle. Does not update LiveIntervals
 /// which we shouldn't need for this instruction anymore.
 void VirtRegRewriter::expandCopyBundle(MachineInstr &MI) const {
-  if (!MI.isCopy() && !MI.isKill())
+  if (!TII->isCopyInstr(MI) && !MI.isKill())
     return;
 
   if (MI.isBundledWithPred() && !MI.isBundledWithSucc()) {
@@ -453,7 +453,7 @@ void VirtRegRewriter::expandCopyBundle(MachineInstr &MI) const {
     for (MachineBasicBlock::reverse_instr_iterator I =
          std::next(MI.getReverseIterator()), E = MBB.instr_rend();
          I != E && I->isBundledWithSucc(); ++I) {
-      if (!I->isCopy() && !I->isKill())
+      if (!TII->isCopyInstr(*I) && !I->isKill())
         return;
       MIs.push_back(&*I);
     }

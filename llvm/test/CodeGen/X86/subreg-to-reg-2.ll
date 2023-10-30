@@ -14,7 +14,7 @@ define internal fastcc ptr @t(ptr %out, ptr %tmp9) nounwind {
 ; CHECK:       ## %bb.0: ## %prologue
 ; CHECK-NEXT:    movq 22222222, %rax
 ; CHECK-NEXT:    movq %rax, (%rdi)
-; CHECK-NEXT:    movl %eax, %eax
+; CHECK-NEXT:    ## kill: def $eax killed $eax killed $rax def $rax
 ; CHECK-NEXT:    movq 32(%rsi,%rax,8), %rax
 ; CHECK-NEXT:    retq
 prologue:

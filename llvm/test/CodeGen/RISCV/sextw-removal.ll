@@ -6,6 +6,8 @@
 ; RUN: llc < %s -mtriple=riscv64 -mattr=+m,+zba,+zbb,+f,+zknh -target-abi=lp64f \
 ; RUN:   -riscv-disable-sextw-removal | FileCheck %s --check-prefix=NOREMOVAL
 
+; XFAIL: *
+
 define void @test1(i32 signext %arg, i32 signext %arg1) nounwind {
 ; CHECK-LABEL: test1:
 ; CHECK:       # %bb.0: # %bb

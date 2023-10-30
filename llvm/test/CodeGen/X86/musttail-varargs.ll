@@ -341,12 +341,12 @@ define void @h_thunk(ptr %this, ...) {
 ; LINUX-X32-NEXT:    jne .LBB2_2
 ; LINUX-X32-NEXT:  # %bb.1: # %then
 ; LINUX-X32-NEXT:    movl 4(%edi), %r11d
-; LINUX-X32-NEXT:    movl %edi, %edi
+; LINUX-X32-NEXT:    # kill: def $edi killed $edi killed $rdi def $rdi
 ; LINUX-X32-NEXT:    jmpq *%r11 # TAILCALL
 ; LINUX-X32-NEXT:  .LBB2_2: # %else
 ; LINUX-X32-NEXT:    movl 8(%edi), %r11d
 ; LINUX-X32-NEXT:    movl $42, g(%rip)
-; LINUX-X32-NEXT:    movl %edi, %edi
+; LINUX-X32-NEXT:    # kill: def $edi killed $edi killed $rdi def $rdi
 ; LINUX-X32-NEXT:    jmpq *%r11 # TAILCALL
 ;
 ; WINDOWS-LABEL: h_thunk:

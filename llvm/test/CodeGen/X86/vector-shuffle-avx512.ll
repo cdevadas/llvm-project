@@ -53,7 +53,7 @@ define <4 x double> @expand2(<2 x double> %a) {
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
 ; CHECK-NEXT:    vperm2f128 {{.*#+}} ymm1 = zero,zero,ymm0[0,1]
-; CHECK-NEXT:    vmovaps %xmm0, %xmm0
+; CHECK-NEXT:    # kill: def $xmm0 killed $xmm0 killed $ymm0 def $ymm0
 ; CHECK-NEXT:    vblendps {{.*#+}} ymm0 = ymm0[0,1],ymm1[2,3],ymm0[4,5],ymm1[6,7]
 ; CHECK-NEXT:    ret{{[l|q]}}
    %res = shufflevector <2 x double> %a, <2 x double> zeroinitializer, <4 x i32> <i32 0, i32 2, i32 2, i32 1>

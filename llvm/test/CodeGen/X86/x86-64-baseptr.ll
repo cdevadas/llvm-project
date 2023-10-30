@@ -26,7 +26,7 @@ define void @base() #0 {
 ; CHECK-NEXT:    .cfi_offset %rbx, -24
 ; CHECK-NEXT:    callq helper@PLT
 ; CHECK-NEXT:    movq %rsp, %rcx
-; CHECK-NEXT:    movl %eax, %eax
+; CHECK-NEXT:    # kill: def $eax killed $eax def $rax
 ; CHECK-NEXT:    leaq 31(,%rax,4), %rax
 ; CHECK-NEXT:    andq $-32, %rax
 ; CHECK-NEXT:    movq %rcx, %rdx
@@ -91,7 +91,7 @@ define void @clobber_base() #0 {
 ; CHECK-NEXT:    .cfi_escape 0x0f, 0x04, 0x76, 0x88, 0x7f, 0x06 #
 ; CHECK-NEXT:    callq helper@PLT
 ; CHECK-NEXT:    movq %rsp, %rcx
-; CHECK-NEXT:    movl %eax, %eax
+; CHECK-NEXT:    # kill: def $eax killed $eax def $rax
 ; CHECK-NEXT:    leaq 31(,%rax,4), %rax
 ; CHECK-NEXT:    andq $-32, %rax
 ; CHECK-NEXT:    movq %rcx, %rdx
@@ -195,7 +195,7 @@ define x86_regcallcc void @clobber_baseptr_argptr(i32 %param1, i32 %param2, i32 
 ; CHECK-NEXT:    movl (%r10), %r14d
 ; CHECK-NEXT:    callq helper@PLT
 ; CHECK-NEXT:    movq %rsp, %rcx
-; CHECK-NEXT:    movl %eax, %eax
+; CHECK-NEXT:    # kill: def $eax killed $eax def $rax
 ; CHECK-NEXT:    leaq 31(,%rax,4), %rax
 ; CHECK-NEXT:    andq $-32, %rax
 ; CHECK-NEXT:    movq %rcx, %rdx

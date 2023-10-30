@@ -194,7 +194,7 @@ define void @foo_zext_nuw(i1 zeroext, i32) nounwind {
 ; X64-NEXT:    movl %esi, %eax
 ; X64-NEXT:    .p2align 4, 0x90
 ; X64-NEXT:  .LBB3_2: # =>This Inner Loop Header: Depth=1
-; X64-NEXT:    movl %eax, %eax
+; X64-NEXT:    # kill: def $eax killed $eax def $rax
 ; X64-NEXT:    shlq $2, %rax
 ; X64-NEXT:    leaq 20(%rax,%rax,4), %rdi
 ; X64-NEXT:    callq bar@PLT

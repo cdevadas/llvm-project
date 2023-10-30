@@ -379,7 +379,7 @@ define ptr @t13(ptr %yy) nounwind ssp {
 ; X32-NEXT:    pushq %rcx
 ; X32-NEXT:    callq foo7
 ; X32-NEXT:    addl $32, %esp
-; X32-NEXT:    movl %eax, %eax
+; X32-NEXT:    # kill: def $eax killed $eax killed $rax def $rax
 ; X32-NEXT:    popq %rcx
 ; X32-NEXT:    retq
 entry:

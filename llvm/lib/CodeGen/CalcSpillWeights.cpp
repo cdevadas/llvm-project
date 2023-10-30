@@ -225,16 +225,7 @@ float VirtRegAuxInfo::weightCalcHelper(LiveInterval &LI, SlotIndex *Start,
       continue;
 
     NumInstr++;
-    bool identityCopy = false;
-    auto DestSrc = TII.isCopyInstr(*MI);
-    if (DestSrc) {
-      const MachineOperand *DestRegOp = DestSrc->Destination;
-      const MachineOperand *SrcRegOp = DestSrc->Source;
-      identityCopy = DestRegOp->getReg() == SrcRegOp->getReg() &&
-                     DestRegOp->getSubReg() == SrcRegOp->getSubReg();
-    }
-
-    if (identityCopy || MI->isImplicitDef())
+    if (TII.isIdentityCopyInstr(*MI) || MI->isImplicitDef())
       continue;
     if (!Visited.insert(MI).second)
       continue;

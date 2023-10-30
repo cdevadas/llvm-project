@@ -192,7 +192,7 @@ define void @CmovNotInHotPath(i32 %n, i32 %a, i32 %b, ptr nocapture %c, ptr noca
 ; CHECK-NEXT:    jle .LBB1_3
 ; CHECK-NEXT:  # %bb.1: # %for.body.preheader
 ; CHECK-NEXT:    movl %edx, %r9d
-; CHECK-NEXT:    movl %edi, %edi
+; CHECK-NEXT:    # kill: def $edi killed $edi def $rdi
 ; CHECK-NEXT:    xorl %r10d, %r10d
 ; CHECK-NEXT:    movl $10, %r11d
 ; CHECK-NEXT:  .LBB1_2: # %for.body
@@ -219,7 +219,7 @@ define void @CmovNotInHotPath(i32 %n, i32 %a, i32 %b, ptr nocapture %c, ptr noca
 ; CHECK-FORCEALL-NEXT:    jle .LBB1_5
 ; CHECK-FORCEALL-NEXT:  # %bb.1: # %for.body.preheader
 ; CHECK-FORCEALL-NEXT:    movl %edx, %r9d
-; CHECK-FORCEALL-NEXT:    movl %edi, %edi
+; CHECK-FORCEALL-NEXT:    # kill: def $edi killed $edi def $rdi
 ; CHECK-FORCEALL-NEXT:    xorl %r10d, %r10d
 ; CHECK-FORCEALL-NEXT:  .LBB1_2: # %for.body
 ; CHECK-FORCEALL-NEXT:    # =>This Inner Loop Header: Depth=1

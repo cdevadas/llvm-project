@@ -155,8 +155,8 @@ extern char &SIFixSGPRCopiesID;
 void initializeSIFixVGPRCopiesPass(PassRegistry &);
 extern char &SIFixVGPRCopiesID;
 
-void initializeSILowerWWMCopiesPass(PassRegistry &);
-extern char &SILowerWWMCopiesID;
+void initializeSILowerLiveRangeSplitCopiesPass(PassRegistry &);
+extern char &SILowerLiveRangeSplitCopiesID;
 
 void initializeSILowerI1CopiesPass(PassRegistry &);
 extern char &SILowerI1CopiesID;

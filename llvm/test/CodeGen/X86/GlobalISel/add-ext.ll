@@ -196,11 +196,11 @@ define void @PR20134_zext(ptr %a, i32 %i) {
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    # kill: def $esi killed $esi def $rsi
 ; CHECK-NEXT:    leal 1(%rsi), %eax
-; CHECK-NEXT:    movl %eax, %eax
+; CHECK-NEXT:    # kill: def $eax killed $eax def $rax
 ; CHECK-NEXT:    imulq $4, %rax, %rax
 ; CHECK-NEXT:    addq %rdi, %rax
 ; CHECK-NEXT:    leal 2(%rsi), %ecx
-; CHECK-NEXT:    movl %ecx, %ecx
+; CHECK-NEXT:    # kill: def $ecx killed $ecx def $rcx
 ; CHECK-NEXT:    imulq $4, %rcx, %rcx
 ; CHECK-NEXT:    addq %rdi, %rcx
 ; CHECK-NEXT:    movl (%rcx), %ecx

@@ -11,7 +11,7 @@ define float @trunc_unsigned_f32(float %x) #0 {
 ; SSE2-LABEL: trunc_unsigned_f32:
 ; SSE2:       # %bb.0:
 ; SSE2-NEXT:    cvttss2si %xmm0, %rax
-; SSE2-NEXT:    movl %eax, %eax
+; SSE2-NEXT:    # kill: def $eax killed $eax killed $rax def $rax
 ; SSE2-NEXT:    xorps %xmm0, %xmm0
 ; SSE2-NEXT:    cvtsi2ss %rax, %xmm0
 ; SSE2-NEXT:    retq

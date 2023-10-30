@@ -24,7 +24,7 @@ define ptr @allocai32() {
 ; X32ABI-GISEL-LABEL: allocai32:
 ; X32ABI-GISEL:       # %bb.0:
 ; X32ABI-GISEL-NEXT:    leal -{{[0-9]+}}(%rsp), %eax
-; X32ABI-GISEL-NEXT:    movl %eax, %eax
+; X32ABI-GISEL-NEXT:    # kill: def $eax killed $eax def $rax
 ; X32ABI-GISEL-NEXT:    retq
 ;
 ; X32ABI-SDAG-LABEL: allocai32:

@@ -5,7 +5,7 @@ define void @BZ2_bzDecompress_bb5_2E_outer_bb35_2E_i_bb54_2E_i(ptr, i32 %c_nbloc
 ; CHECK-LABEL: BZ2_bzDecompress_bb5_2E_outer_bb35_2E_i_bb54_2E_i:
 ; CHECK:       # %bb.0: # %newFuncRoot
 ; CHECK-NEXT:    movq {{[0-9]+}}(%rsp), %rax
-; CHECK-NEXT:    movl %edx, %edx
+; CHECK-NEXT:    # kill: def $edx killed $edx def $rdx
 ; CHECK-NEXT:    movl (%rdi,%rdx,4), %edx
 ; CHECK-NEXT:    movzbl %dl, %r10d
 ; CHECK-NEXT:    addl $4, %r10d

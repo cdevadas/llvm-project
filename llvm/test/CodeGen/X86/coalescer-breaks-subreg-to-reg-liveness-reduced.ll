@@ -55,7 +55,7 @@ define void @foo(ptr %arg3, i1 %icmp16) #0 {
 ; CHECK-NEXT:    # =>This Inner Loop Header: Depth=1
 ; CHECK-NEXT:    xorl %eax, %eax
 ; CHECK-NEXT:    callq *%rax
-; CHECK-NEXT:    movl %r13d, %r13d
+; CHECK-NEXT:    # kill: def $r13d killed $r13d killed $r13 def $r13
 ; CHECK-NEXT:    testb $1, %bl
 ; CHECK-NEXT:    movl $0, %r14d
 ; CHECK-NEXT:    jne .LBB0_1

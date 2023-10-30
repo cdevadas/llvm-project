@@ -14,7 +14,7 @@ define double @powi(double %value, i32 %power) {
 ; MIPSN64-NEXT:    sd $ra, 8($sp) # 8-byte Folded Spill
 ; MIPSN64-NEXT:    .cfi_offset 31, -8
 ; MIPSN64-NEXT:    jal __powidf2
-; MIPSN64-NEXT:    sll $5, $5, 0
+; MIPSN64-NEXT:    nop
 ; MIPSN64-NEXT:    ld $ra, 8($sp) # 8-byte Folded Reload
 ; MIPSN64-NEXT:    jr $ra
 ; MIPSN64-NEXT:    daddiu $sp, $sp, 16
@@ -26,7 +26,7 @@ define double @powi(double %value, i32 %power) {
 ; MIPSN32-NEXT:    sd $ra, 8($sp) # 8-byte Folded Spill
 ; MIPSN32-NEXT:    .cfi_offset 31, -8
 ; MIPSN32-NEXT:    jal __powidf2
-; MIPSN32-NEXT:    sll $5, $5, 0
+; MIPSN32-NEXT:    nop
 ; MIPSN32-NEXT:    ld $ra, 8($sp) # 8-byte Folded Reload
 ; MIPSN32-NEXT:    jr $ra
 ; MIPSN32-NEXT:    addiu $sp, $sp, 16
@@ -44,7 +44,7 @@ define float @powfi(float %value, i32 %power) {
 ; MIPSN64-NEXT:    sd $ra, 8($sp) # 8-byte Folded Spill
 ; MIPSN64-NEXT:    .cfi_offset 31, -8
 ; MIPSN64-NEXT:    jal __powisf2
-; MIPSN64-NEXT:    sll $5, $5, 0
+; MIPSN64-NEXT:    nop
 ; MIPSN64-NEXT:    ld $ra, 8($sp) # 8-byte Folded Reload
 ; MIPSN64-NEXT:    jr $ra
 ; MIPSN64-NEXT:    daddiu $sp, $sp, 16
@@ -56,7 +56,7 @@ define float @powfi(float %value, i32 %power) {
 ; MIPSN32-NEXT:    sd $ra, 8($sp) # 8-byte Folded Spill
 ; MIPSN32-NEXT:    .cfi_offset 31, -8
 ; MIPSN32-NEXT:    jal __powisf2
-; MIPSN32-NEXT:    sll $5, $5, 0
+; MIPSN32-NEXT:    nop
 ; MIPSN32-NEXT:    ld $ra, 8($sp) # 8-byte Folded Reload
 ; MIPSN32-NEXT:    jr $ra
 ; MIPSN32-NEXT:    addiu $sp, $sp, 16

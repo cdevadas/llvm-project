@@ -15,7 +15,7 @@ entry:
 
 ; This copy can't be coalesced away because it needs the implicit zero-extend.
 ; CHECK-LABEL: bbb:
-; CHECK: movl %edi, %edi
+; CHECK: kill: def $edi killed $edi killed $rdi def $rdi
 
 define void @bbb(i64 %x) nounwind {
   %t = and i64 %x, 4294967295

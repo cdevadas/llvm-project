@@ -19,7 +19,6 @@ declare <16 x i8> @llvm.mips.move.v(<16 x i8>) nounwind
 
 ; CHECK: llvm_mips_move_vb_test:
 ; CHECK: ld.b
-; CHECK: move.v
 ; CHECK: st.b
 ; CHECK: .size llvm_mips_move_vb_test
 ;

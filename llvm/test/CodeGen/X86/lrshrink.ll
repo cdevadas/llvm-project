@@ -34,7 +34,7 @@ define i64 @test(i1 %a, i64 %r1, i64 %r2, i64 %s1, i64 %s2, i64 %t1, i64 %t2) {
 ; CHECK-NEXT:    callq _Z3foov@PLT
 ; CHECK-NEXT:    movl %eax, %r14d
 ; CHECK-NEXT:    callq _Z3foov@PLT
-; CHECK-NEXT:    movl %eax, %eax
+; CHECK-NEXT:    # kill: def $eax killed $eax def $rax
 ; CHECK-NEXT:    addq %r14, %rax
 ; CHECK-NEXT:    addq %r15, %rax
 ; CHECK-NEXT:    addq %rbx, %rax

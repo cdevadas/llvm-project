@@ -9,7 +9,7 @@
 define <8 x float> @castA(<4 x float> %m) nounwind uwtable readnone ssp {
 ; AVX-LABEL: castA:
 ; AVX:       ## %bb.0:
-; AVX-NEXT:    vmovaps %xmm0, %xmm0
+; AVX-NEXT:    ## kill: def $xmm0 killed $xmm0 def $ymm0
 ; AVX-NEXT:    retq
   %shuffle.i = shufflevector <4 x float> %m, <4 x float> zeroinitializer, <8 x i32> <i32 0, i32 1, i32 2, i32 3, i32 4, i32 4, i32 4, i32 4>
   ret <8 x float> %shuffle.i
@@ -18,7 +18,7 @@ define <8 x float> @castA(<4 x float> %m) nounwind uwtable readnone ssp {
 define <4 x double> @castB(<2 x double> %m) nounwind uwtable readnone ssp {
 ; AVX-LABEL: castB:
 ; AVX:       ## %bb.0:
-; AVX-NEXT:    vmovaps %xmm0, %xmm0
+; AVX-NEXT:    ## kill: def $xmm0 killed $xmm0 def $ymm0
 ; AVX-NEXT:    retq
   %shuffle.i = shufflevector <2 x double> %m, <2 x double> zeroinitializer, <4 x i32> <i32 0, i32 1, i32 2, i32 2>
   ret <4 x double> %shuffle.i

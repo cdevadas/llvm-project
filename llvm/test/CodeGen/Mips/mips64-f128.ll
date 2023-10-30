@@ -368,7 +368,6 @@ define fp128 @conv_LD_int(i32 %a) {
 ; C_CC_FMT-NEXT:    lui $1, %hi(%neg(%gp_rel(conv_LD_int)))
 ; C_CC_FMT-NEXT:    daddu $1, $1, $25
 ; C_CC_FMT-NEXT:    daddiu $gp, $1, %lo(%neg(%gp_rel(conv_LD_int)))
-; C_CC_FMT-NEXT:    sll $4, $4, 0
 ; C_CC_FMT-NEXT:    ld $25, %call16(__floatsitf)($gp)
 ; C_CC_FMT-NEXT:    .reloc .Ltmp6, R_MIPS_JALR, __floatsitf
 ; C_CC_FMT-NEXT:  .Ltmp6:
@@ -391,7 +390,6 @@ define fp128 @conv_LD_int(i32 %a) {
 ; CMP_CC_FMT-NEXT:    lui $1, %hi(%neg(%gp_rel(conv_LD_int)))
 ; CMP_CC_FMT-NEXT:    daddu $1, $1, $25
 ; CMP_CC_FMT-NEXT:    daddiu $gp, $1, %lo(%neg(%gp_rel(conv_LD_int)))
-; CMP_CC_FMT-NEXT:    sll $4, $4, 0
 ; CMP_CC_FMT-NEXT:    ld $25, %call16(__floatsitf)($gp)
 ; CMP_CC_FMT-NEXT:    .reloc .Ltmp6, R_MIPS_JALR, __floatsitf
 ; CMP_CC_FMT-NEXT:  .Ltmp6:
@@ -1922,7 +1920,6 @@ define fp128 @libcall_powil(fp128 %a, i32 %b) {
 ; C_CC_FMT-NEXT:    lui $1, %hi(%neg(%gp_rel(libcall_powil)))
 ; C_CC_FMT-NEXT:    daddu $1, $1, $25
 ; C_CC_FMT-NEXT:    daddiu $gp, $1, %lo(%neg(%gp_rel(libcall_powil)))
-; C_CC_FMT-NEXT:    sll $6, $6, 0
 ; C_CC_FMT-NEXT:    ld $25, %call16(__powitf2)($gp)
 ; C_CC_FMT-NEXT:    .reloc .Ltmp36, R_MIPS_JALR, __powitf2
 ; C_CC_FMT-NEXT:  .Ltmp36:
@@ -1945,7 +1942,6 @@ define fp128 @libcall_powil(fp128 %a, i32 %b) {
 ; CMP_CC_FMT-NEXT:    lui $1, %hi(%neg(%gp_rel(libcall_powil)))
 ; CMP_CC_FMT-NEXT:    daddu $1, $1, $25
 ; CMP_CC_FMT-NEXT:    daddiu $gp, $1, %lo(%neg(%gp_rel(libcall_powil)))
-; CMP_CC_FMT-NEXT:    sll $6, $6, 0
 ; CMP_CC_FMT-NEXT:    ld $25, %call16(__powitf2)($gp)
 ; CMP_CC_FMT-NEXT:    .reloc .Ltmp36, R_MIPS_JALR, __powitf2
 ; CMP_CC_FMT-NEXT:  .Ltmp36:

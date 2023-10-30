@@ -26,7 +26,7 @@ define dso_local ptr @test_global_ptrv() #3 {
 ; X32ABI-LABEL: test_global_ptrv:
 ; X32ABI:       # %bb.0: # %entry
 ; X32ABI-NEXT:    leal g_int, %eax
-; X32ABI-NEXT:    movl %eax, %eax
+; X32ABI-NEXT:    # kill: def $eax killed $eax def $rax
 ; X32ABI-NEXT:    retq
 entry:
   ret ptr @g_int

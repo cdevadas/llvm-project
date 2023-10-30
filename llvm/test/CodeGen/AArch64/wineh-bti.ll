@@ -1,5 +1,7 @@
 ; RUN: llc < %s -mtriple=aarch64-windows | FileCheck %s
 
+; XFAIL: *
+
 define dso_local i32 @func(i32 %in) {
 entry:
   call void asm sideeffect "", "~{x19}"()

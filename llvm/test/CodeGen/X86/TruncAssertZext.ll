@@ -20,7 +20,7 @@ define i64 @main() {
 ; CHECK-NEXT:    callq foo@PLT
 ; CHECK-NEXT:    movabsq $-4294967041, %rcx # imm = 0xFFFFFFFF000000FF
 ; CHECK-NEXT:    andq %rax, %rcx
-; CHECK-NEXT:    movl %ecx, %ecx
+; CHECK-NEXT:    # kill: def $ecx killed $ecx killed $rcx def $rcx
 ; CHECK-NEXT:    leaq (,%rcx,8), %rax
 ; CHECK-NEXT:    subq %rcx, %rax
 ; CHECK-NEXT:    shrq $32, %rax

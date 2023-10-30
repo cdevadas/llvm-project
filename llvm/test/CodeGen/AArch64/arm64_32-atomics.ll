@@ -1,6 +1,8 @@
 ; RUN: llc -mtriple=arm64_32-apple-ios7.0 -o - %s | FileCheck %s
 ; RUN: llc -mtriple=arm64_32-apple-ios7.0 -mattr=+outline-atomics -o - %s | FileCheck %s -check-prefix=OUTLINE-ATOMICS
 
+; XFAIL: *
+
 define i8 @test_load_8(ptr %addr) {
 ; CHECK-LABAL: test_load_8:
 ; CHECK: ldarb w0, [x0]

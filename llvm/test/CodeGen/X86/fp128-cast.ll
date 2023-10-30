@@ -365,7 +365,7 @@ define dso_local void @TestFPToUIF128_U64() nounwind {
 ; X64-SSE-NEXT:    pushq %rax
 ; X64-SSE-NEXT:    movaps vf128(%rip), %xmm0
 ; X64-SSE-NEXT:    callq __fixunstfsi@PLT
-; X64-SSE-NEXT:    movl %eax, %eax
+; X64-SSE-NEXT:    # kill: def $eax killed $eax def $rax
 ; X64-SSE-NEXT:    movq %rax, vu64(%rip)
 ; X64-SSE-NEXT:    popq %rax
 ; X64-SSE-NEXT:    retq
@@ -389,7 +389,7 @@ define dso_local void @TestFPToUIF128_U64() nounwind {
 ; X64-AVX-NEXT:    pushq %rax
 ; X64-AVX-NEXT:    vmovaps vf128(%rip), %xmm0
 ; X64-AVX-NEXT:    callq __fixunstfsi@PLT
-; X64-AVX-NEXT:    movl %eax, %eax
+; X64-AVX-NEXT:    # kill: def $eax killed $eax def $rax
 ; X64-AVX-NEXT:    movq %rax, vu64(%rip)
 ; X64-AVX-NEXT:    popq %rax
 ; X64-AVX-NEXT:    retq

@@ -932,6 +932,10 @@ void RAGreedy::splitAroundRegion(LiveRangeEdit &LREdit,
         IntvIn = Cand.IntvIdx;
         Cand.Intf.moveToBlock(Number);
         IntfIn = Cand.Intf.first();
+        if (IntfIn) {
+          MachineBasicBlock::iterator I = BI.MBB->SkipPHIsLabelsAndDebug(BI.MBB->begin());
+          IntfIn = I == BI.MBB->end() ? SlotIndex() : LIS->getInstructionIndex(*I).getRegSlot();
+        }
       }
     }
     if (BI.LiveOut) {
@@ -980,6 +984,11 @@ void RAGreedy::splitAroundRegion(LiveRangeEdit &LREdit,
         IntvIn = Cand.IntvIdx;
         Cand.Intf.moveToBlock(Number);
         IntfIn = Cand.Intf.first();
+        if (IntfIn) {
+          MachineBasicBlock *MBB = MF->getBlockNumbered(Number);
+          MachineBasicBlock::iterator I = MBB->SkipPHIsLabelsAndDebug(MBB->begin());
+          IntfIn = I == MBB->end() ? SlotIndex() : LIS->getInstructionIndex(*I).getRegSlot();
+        }
       }
 
       unsigned CandOut = BundleCand[Bundles->getBundle(Number, true)];
